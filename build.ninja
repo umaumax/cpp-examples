@@ -23,4 +23,5 @@ rule shared_lib
 build always: phony
 
 build boost_stream: boost_app ./boost/serialization/main.cpp
+build boost_shared_ptr: boost_app ./boost/shared_ptr/main.cpp
 # build a.out: app main.cpp | phony
