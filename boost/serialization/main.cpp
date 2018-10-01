@@ -45,7 +45,14 @@ int main() {
     it >> v;
     std::map<std::string, int> data;
     it >> data;
-    std::cout << data;
+    std::cout << data << std::endl;
+
+    std::streampos archive_offset    = iss.tellg();
+    std::streamoff stream_end_offset = iss.seekg(0, std::ios_base::end).tellg();
+    iss.seekg(archive_offset);
+    if (iss.tellg() == stream_end_offset - 1) {
+      std::cout << "EOF" << std::endl;
+    }
   }
   return 0;
 }
