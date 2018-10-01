@@ -2,11 +2,12 @@
 #include <boost/shared_ptr.hpp>
 
 #include <iostream>
+#include <memory>
 
 class Test {
  public:
-  Test() { std::cout << "hello" << std::endl; }
-  ~Test() { std::cout << "bye" << std::endl; }
+  Test() { std::cout << "  hello" << std::endl; }
+  ~Test() { std::cout << "  bye" << std::endl; }
 };
 
 // FYI: [c\+\+ \- Conversion from boost::shared\_ptr to std::shared\_ptr? \- Stack Overflow]( https://stackoverflow.com/questions/6326757/conversion-from-boostshared-ptr-to-stdshared-ptr )
@@ -26,12 +27,16 @@ class std::shared_ptr<T> to_std_shared_ptr(class boost::shared_ptr<const T> cons
 int main() {
   std::cout << "# main start" << std::endl;
 
+  std::cout << std::endl;
+
   std::cout << "# 1 start" << std::endl;
   {
     //
     boost::shared_ptr<Test> boost_shared_ptr{new Test()};
   }
   std::cout << "# 1 end" << std::endl;
+
+  std::cout << std::endl;
 
   // NOTE: boost::shared_ptr to std::shared_ptr example
   {
@@ -43,6 +48,8 @@ int main() {
     }
     std::cout << "# 2 end" << std::endl;
   }
+
+  std::cout << std::endl;
 
   // NOTE: multi boost::shared_ptr to std::shared_ptr example
   {
@@ -56,6 +63,8 @@ int main() {
     std::cout << "# 2-2 end" << std::endl;
   }
 
+  std::cout << std::endl;
+
   // NOTE: boost::shared_ptr to std::shared_ptr<void> example
   {
     std::cout << "# 3 start" << std::endl;
@@ -66,7 +75,8 @@ int main() {
     }
     std::cout << "# 3 end" << std::endl;
   }
-  std::cout << "# main end" << std::endl;
+
+  std::cout << std::endl;
 
   // NOTE: boost::shared_ptr<const xxx> to std::shared_ptr<void> example
   {
@@ -79,6 +89,22 @@ int main() {
     }
     std::cout << "# 3-2 end" << std::endl;
   }
+
+  std::cout << std::endl;
+
+  // NOTE: std::shared_ptr<boost::shared_ptr<xxx>> to std::shared_ptr<void> example
+  {
+    std::cout << "# 3-3 start" << std::endl;
+    std::shared_ptr<void> std_shared_ptr;
+    {
+      boost::shared_ptr<Test> boost_shared_ptr{new Test()};
+      std_shared_ptr = std::make_shared<decltype(boost_shared_ptr)>(boost_shared_ptr);
+    }
+    std::cout << "# 3-3 end" << std::endl;
+  }
+
+  std::cout << std::endl;
+
   std::cout << "# main end" << std::endl;
 
   // NOTE: standard example
