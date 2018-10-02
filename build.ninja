@@ -8,7 +8,7 @@ rule app
     command = $CXX $CXX_FLAG $in -o $out
     description = building app: $out
 rule boost_app
-    command = $CXX $CXX_FLAG $BOOST_FLAG $in -o $out
+    command = $CXX $CXX_FLAG $in $BOOST_FLAG -o $out
     description = building app: $out
 rule obj
     command = $CXX $CXX_FLAG -c $in -o $out
