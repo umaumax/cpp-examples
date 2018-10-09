@@ -25,4 +25,5 @@ build always: phony
 build boost_serialization_app: boost_app ./boost/serialization/main.cpp
 build boost_shared_ptr_app: boost_app ./boost/shared_ptr/main.cpp
 build bridge_app: app ./bridge/main.cpp
+build signal_app: app ./signal/main.cpp
 # build a.out: app main.cpp | phony
