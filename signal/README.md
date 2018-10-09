@@ -37,3 +37,10 @@ WIP
 
 ## tips
 * sigactionでsignalは上書きされる
+
+## FYI
+* [c \- Is it valid to have multiple signal handlers for same signal? \- Stack Overflow]( https://stackoverflow.com/questions/17102919/is-it-valid-to-have-multiple-signal-handlers-for-same-signal )
+* [C/C\+\+ signal handling]( http://www.yolinux.com/TUTORIALS/C++Signals.html )
+* [安全なシグナルハンドラを実装するには　――C/C\+\+セキュアコーディング入門（4）：CodeZine（コードジン）]( https://codezine.jp/article/detail/4700 )
+  * malloc()は非同期シグナル安全でない
+    * つまり，内部でmallocを呼び出すような関数はNG(もちろん，printfも)
