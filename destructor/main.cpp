@@ -19,7 +19,11 @@ class Big {
     small2_ = std::unique_ptr<Small>(new Small(msg_ + "-2"));
     small3_ = std::unique_ptr<Small>(new Small(msg_ + "-3"));
   }
-  ~Big() { std::cout << "Big destructor" << msg_ << std::endl; }
+  ~Big() {
+    std::cout << "Big destructor" << msg_ << std::endl;
+    small1_.release();       // NOTE: don't call destructor
+    small2_.reset(nullptr);  // NOTE: force call destructor
+  }
 
  private:
   std::unique_ptr<Small> small1_;
