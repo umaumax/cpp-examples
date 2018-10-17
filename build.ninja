@@ -28,4 +28,7 @@ build bridge_app: app ./bridge/main.cpp
 build signal_app: app ./signal/main.cpp
 build destructor_app: app ./destructor/main.cpp
 
+build ./constexpr/person.o: obj ./constexpr/person.cpp
+build constexpr_app: app ./constexpr/main.cpp ./constexpr/person.o
+
 # build a.out: app main.cpp | phony
