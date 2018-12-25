@@ -14,3 +14,5 @@ $ g++ -std=c++11 sqrt-without-cmath.cpp
 $ ./a.out
 no sqrt function!
 ```
+
+* you can also use clang++
