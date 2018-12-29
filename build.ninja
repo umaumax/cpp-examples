@@ -27,6 +27,7 @@ build boost_shared_ptr_app: boost_app ./boost/shared_ptr/main.cpp
 build boost_split_join_app: boost_app ./boost/split_join/main.cpp
 build bridge_app: app ./bridge/main.cpp
 build signal_app: app ./signal/main.cpp
+build signal_sigwait_app: app ./signal/sigwait_main.cpp
 build destructor_app: app ./destructor/main.cpp
 
 build ./constexpr/person.o: obj ./constexpr/person.cpp

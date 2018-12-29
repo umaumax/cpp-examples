@@ -1,5 +1,14 @@
 # signal example
 
+## there is two way to control signal handler
+1. use sigaction
+  * 非同期的な処理
+  * 呼び出してはならない処理が存在する(e.g. `printf`, `malloc`)
+1. use sigwait
+  * 同期的な処理
+  * sigactionよりも安全に処理を行うことができる
+  * [シグナルハンドラを使わないでシグナルをハンドルする \- memologue]( http://d.hatena.ne.jp/yupo5656/20060114/p1 )
+
 ## how to set signal handler
 ```
 {
