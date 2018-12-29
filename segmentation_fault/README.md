@@ -10,3 +10,6 @@ export SEGFAULT_SIGNALS=all
 ```
 catchsegv ./segmentation_fault_app
 ```
+
+## FYI
+* add `-g` to compile option
