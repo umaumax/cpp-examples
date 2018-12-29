@@ -29,6 +29,7 @@ build bridge_app: app ./bridge/main.cpp
 build signal_app: app ./signal/main.cpp
 build signal_sigwait_app: app ./signal/sigwait_main.cpp
 build destructor_app: app ./destructor/main.cpp
+build segmentation_fault_app: app ./segmentation_fault/main.cpp
 
 build ./constexpr/person.o: obj ./constexpr/person.cpp
 build constexpr_app: app ./constexpr/main.cpp ./constexpr/person.o
