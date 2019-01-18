@@ -19,12 +19,21 @@ void f(int n) {
   // clang-format off
   class MonoStopWatch {
     using time_type = std::chrono::system_clock::time_point;
+
    public:
     MonoStopWatch() { Clear(); }
     void Start() { start_time_ = now(); }
+    void Toggle() {
+      if (start_time_.time_since_epoch().count() == 0) {
+        Start();
+      } else {
+        Stop();
+      }
+    }
     void Stop() {
       end_time_ = now();
       update(ElapsedTime());
+      start_time_ = {};
     }
     double ElapsedTime() { return std::chrono::duration_cast<std::chrono::microseconds>(end_time_ - start_time_).count() / 1000.0; }
     void Print(const std::string& message) { std::fprintf(stderr, "%48s (ms) [%10llu] sum:%11.4lf, ave:%11.4lf, (min,max)=(%11.4lf,%11.4lf), now:%11.4lf\n", message.c_str(), callee_cnt_, sum_elapsed_time_, ave_elapsed_time_, min_elapsed_time_, max_elapsed_time_, pre_elapsed_time_); };
@@ -36,6 +45,7 @@ void f(int n) {
       ave_elapsed_time_ = 0.0;
       pre_elapsed_time_ = 0.0;
     };
+
    private:
     time_type now() { return std::chrono::system_clock::now(); }
     void update(double elapsed_time) {
@@ -62,17 +72,19 @@ void f(int n) {
     void Clear(std::string key) { getMonoStopWatch(key, false).Clear(); };
     void Start(std::string key) { getMonoStopWatch(key, false).Start(); };
     void Stop(std::string key) { getMonoStopWatch(key).Stop(); };
+    void Toggle(std::string key) { getMonoStopWatch(key, false).Toggle(); };
     void Print(std::string key) { getMonoStopWatch(key).Print(message_ + ":" + key); };
     void PrintAll() {
       for (auto& x : mono_stop_watch_map_) {
         Print(x.first);
       }
     }
+
    private:
-    MonoStopWatch& getMonoStopWatch(std::string key, bool assert_flag=true) {
-      if(assert_flag) {
-        auto it=mono_stop_watch_map_.find(key);
-        assert((it!=mono_stop_watch_map_.end()) && "no exist key found");
+    MonoStopWatch& getMonoStopWatch(std::string key, bool assert_flag = true) {
+      if (assert_flag) {
+        auto it = mono_stop_watch_map_.find(key);
+        assert((it != mono_stop_watch_map_.end()) && "no exist key found");
       }
       return mono_stop_watch_map_[key];
     }
@@ -87,9 +99,9 @@ void f(int n) {
   stopwatch.Start("total");
   int sum = 0;
   for (int i = 0; i < n; i++) {
-    stopwatch.Start("for-loop");
+    stopwatch.Toggle("for-loop");
     sum += i;
-    stopwatch.Stop("for-loop");
+    stopwatch.Toggle("for-loop");
   }
   stopwatch.Stop("total");
 
