@@ -14,3 +14,4 @@
 * [Calling private method in C++ - Stack Overflow]( http://stackoverflow.com/questions/6873138/calling-private-method-in-c )
   * [litb's Blog: Access to private members\. That's easy\!]( http://bloglitb.blogspot.com/2010/07/access-to-private-members-thats-easy.html )
 
+* 現在，const methodへのアクセスが実現できていない

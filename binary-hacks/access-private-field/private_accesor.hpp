@@ -36,16 +36,16 @@ class class_type_helper<Class, ReturnValue(Args...)> {
 };
 
 // NOTE: create private method pointer content variable and decl function to access it
-#define DECL_PRIVATE_METHOD_ACCESSOR(class_name, method_name, func_type)                                                                       \
+#define DECL_PRIVATE_METHOD_ACCESSOR(name, class_name, method_name, func_type)                                                                 \
   template class rob<class_type_helper<class_name, func_type>::type, &class_name::method_name>;                                                \
   template <class... Args>                                                                                                                     \
-  class_type_helper<class_name, func_type>::return_type PRIVATE_METHOD_CALL_##class_name##_##method_name(class_name &x, Args &&... args) {     \
+  class_type_helper<class_name, func_type>::return_type PRIVATE_METHOD_CALL_##name##_##method_name(class_name &x, Args &&... args) {           \
     return (class_type_helper<class_name, func_type>::return_type)((x).*result<class_type_helper<class_name, func_type>::type>::ptr)(args...); \
   }
 
 // NOTE: create private member pointer content variable and decl function to access it
-#define DECL_PRIVATE_MEMBER_ACCESSOR(class_name, member_name, member_type) \
-  template class rob<member_type class_name::*, &class_name::member_name>; \
-  member_type &PRIVATE_MEMBER_ACCESS_##class_name##_##member_name(class_name &obj) { return obj.*result<member_type class_name::*>::ptr; }
+#define DECL_PRIVATE_MEMBER_ACCESSOR(name, class_name, member_name, member_type) \
+  template class rob<member_type class_name::*, &class_name::member_name>;       \
+  member_type &PRIVATE_MEMBER_ACCESS_##name##_##member_name(class_name &obj) { return obj.*result<member_type class_name::*>::ptr; }
 
 #endif  // PRIVATE_ACCESOR_HPP_INCLUDED__
