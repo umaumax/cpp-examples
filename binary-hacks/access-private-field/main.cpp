@@ -13,9 +13,9 @@ struct Hoge {
 
 #include "private_accesor.hpp"
 // method
-DECL_PRIVATE_METHOD_ACCESSOR(Hoge, func0, void, ())
-DECL_PRIVATE_METHOD_ACCESSOR(Hoge, func1, int, (int))
-DECL_PRIVATE_METHOD_ACCESSOR(Hoge, func2, void, (int, int))
+DECL_PRIVATE_METHOD_ACCESSOR(Hoge, func0, void())
+DECL_PRIVATE_METHOD_ACCESSOR(Hoge, func1, int(int))
+DECL_PRIVATE_METHOD_ACCESSOR(Hoge, func2, void(int, int))
 // member
 DECL_PRIVATE_MEMBER_ACCESSOR(Hoge, member_, int)
 
@@ -24,6 +24,6 @@ int main() {
   PRIVATE_METHOD_CALL_Hoge_func0(a);
   PRIVATE_METHOD_CALL_Hoge_func1(a, 1);
   PRIVATE_METHOD_CALL_Hoge_func2(a, 1, 2);
-  PRIVATE_ACCESS_Hoge_member_(a) = 123;
-  std::cout << "member_:" << PRIVATE_ACCESS_Hoge_member_(a) << std::endl;
+  PRIVATE_MEMBER_ACCESS_Hoge_member_(a) = 123;
+  std::cout << "member_:" << PRIVATE_MEMBER_ACCESS_Hoge_member_(a) << std::endl;
 }
