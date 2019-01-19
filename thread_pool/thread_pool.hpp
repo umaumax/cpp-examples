@@ -56,6 +56,7 @@ inline ThreadPool::ThreadPool(int threads, std::function<void(int)> init_func) :
 // NOTE: destructor joins all threads if all tasks are completed
 inline ThreadPool::~ThreadPool() { Join(); }
 inline void ThreadPool::Join() {
+  if (stop_flag_) return;
   {
     std::unique_lock<std::mutex> lock(queue_mutex_);
     stop_flag_ = true;
