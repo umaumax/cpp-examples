@@ -20,14 +20,17 @@ class ThreadPool {
 
   // NOTE: use std::invoke_result not std::result_of(C++17~)
   template <class F, class... Args>
-  auto PushTask(F &&f, Args &&... args) -> std::future<typename std::result_of<F(Args...)>::type>;
-  void Join();
+  auto PushTask(F &&f, Args &&... args) -> std::shared_future<typename std::result_of<F(Args...)>::type>;
+  void JoinTasks();
+  void JoinPool();
 
  private:
   std::vector<std::thread> workers_;
   std::queue<std::function<void()>> tasks_;
+  std::queue<std::function<void()>> wait_tasks_;
 
   std::mutex queue_mutex_;
+  std::mutex wait_queue_mutex_;
   std::condition_variable condition_;
   bool stop_flag_;
 };
@@ -54,8 +57,20 @@ inline ThreadPool::ThreadPool(int threads, std::function<void(int)> init_func) :
     });
 }
 // NOTE: destructor joins all threads if all tasks are completed
-inline ThreadPool::~ThreadPool() { Join(); }
-inline void ThreadPool::Join() {
+inline ThreadPool::~ThreadPool() { JoinPool(); }
+inline void ThreadPool::JoinTasks() {
+  while (true) {
+    std::function<void()> wait_task;
+    {
+      std::unique_lock<std::mutex> lock(wait_queue_mutex_);
+      if (wait_tasks_.empty()) break;
+      wait_task = std::move(wait_tasks_.front());
+      wait_tasks_.pop();
+    }
+    wait_task();
+  }
+}
+inline void ThreadPool::JoinPool() {
   if (stop_flag_) return;
   {
     std::unique_lock<std::mutex> lock(queue_mutex_);
@@ -67,15 +82,23 @@ inline void ThreadPool::Join() {
 
 // add new work item to the pool
 template <class F, class... Args>
-auto ThreadPool::PushTask(F &&f, Args &&... args) -> std::future<typename std::result_of<F(Args...)>::type> {
+auto ThreadPool::PushTask(F &&f, Args &&... args) -> std::shared_future<typename std::result_of<F(Args...)>::type> {
   using return_type = typename std::result_of<F(Args...)>::type;
 
-  auto task                    = std::make_shared<std::packaged_task<return_type()>>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
-  std::future<return_type> res = task->get_future();
+  auto task                           = std::make_shared<std::packaged_task<return_type()>>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
+  std::shared_future<return_type> res = task->get_future().share();
   {
     std::unique_lock<std::mutex> lock(queue_mutex_);
     assert(!stop_flag_ || "[assert] PushTask() called on stopped ThreadPool");
     tasks_.emplace([task]() { (*task)(); });
+    {
+      std::unique_lock<std::mutex> lock(wait_queue_mutex_);
+      wait_tasks_.emplace([=]() {
+        if (res.valid()) {
+          res.wait();
+        }
+      });
+    }
   }
   condition_.notify_one();
   return res;
