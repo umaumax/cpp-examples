@@ -94,7 +94,6 @@ void f(int n) {
   // clang-format on
   static StopWatch stopwatch;
 
-  // TODO: start以外での未知のkeyは許容しないように
   stopwatch.Clear("for-loop");
   stopwatch.Start("total");
   int sum = 0;
