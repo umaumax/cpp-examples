@@ -38,3 +38,35 @@ Benchmark                  Time           CPU Iterations
 BM_StringCreation         23 ns         22 ns   32453082
 BM_StringCopy             11 ns         11 ns   62763945
 ```
+
+## how to build
+### host machine build
+* [google/benchmark: A microbenchmark support library]( https://github.com/google/benchmark )
+
+### cross compile
+```
+ROOT_PATH_OF_TOOLCHAIN=
+PATH_TO_CMAKE_TOOLCHAIN=
+
+git clone https://github.com/google/benchmark.git
+pushd benchmark
+
+git clone https://github.com/google/googletest.git
+pushd googletest
+mkdir build
+cd build
+mkdir local
+cmake .. -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_TOOLCHAIN_FILE=$PATH_TO_CMAKE_TOOLCHAIN -DCMAKE_INSTALL_PREFIX=./local
+make -j
+make install
+sudo cp -Rv local $ROOT_PATH_OF_TOOLCHAIN/usr/
+popd
+
+mkdir build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_TOOLCHAIN_FILE=$PATH_TO_CMAKE_TOOLCHAIN -DCMAKE_INSTALL_PREFIX=./local -DHAVE_POSIX_REGEX=0 -DHAVE_STD_REGEX=0 -DHAVE_STEADY_CLOCK=0
+make -j
+make install
+sudo cp -Rv local $ROOT_PATH_OF_TOOLCHAIN/usr/
+popd
+```
