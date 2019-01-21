@@ -22,7 +22,7 @@ BENCHMARK_MAIN();
 ```
 
 ```
-$ g++ -std=c++11 -lbenchmark main.cpp
+$ g++ -std=c++11 main.cpp -lbenchmark -lpthread
 $ ./a.out
 2019-01-13 17:27:19
 Running ./a.out
