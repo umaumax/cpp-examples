@@ -32,7 +32,8 @@ int main() {
   }
 
   {
-    float f_underflow = 1e-30f;
+    float x = 1e-30f;
+    float f_underflow = x * x;
 
     // NOTE: if you want to use dummy value (you can't use string because std::to_string can't accept not number)
 #undef VAR_NAME

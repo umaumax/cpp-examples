@@ -18,9 +18,28 @@ float result = std::numeric_limits<double>::max();
 ## result
 ### Max OS X
 ```
+# g++-7
 $ ./a.out
-main.cpp:18 RAISED FLOATING-POINT OVERFLOW: d xx = inf
-main.cpp:21 FE_ALL_EXCEPT SUCCESS
-main.cpp:33 FE_ALL_EXCEPT SUCCESS
-main.cpp:45 FE_ALL_EXCEPT SUCCESS
+main.cpp:16 RAISED FLOATING-POINT OVERFLOW: d xx = inf
+main.cpp:19 FE_ALL_EXCEPT SUCCESS
+main.cpp:31 FE_ALL_EXCEPT SUCCESS
+main.cpp:42 RAISED FLOATING-POINT UNDERFLOW: f f_underflow = 0.000000
+main.cpp:44 FE_ALL_EXCEPT SUCCESS
+# clang 7.0.1
+$ ./a.out
+main.cpp:16 RAISED FLOATING-POINT OVERFLOW: d xx = inf
+main.cpp:19 FE_ALL_EXCEPT SUCCESS
+main.cpp:28 RAISED FLOATING-POINT OVERFLOW: f f_overflow = inf
+main.cpp:31 FE_ALL_EXCEPT SUCCESS
+main.cpp:42 RAISED FLOATING-POINT UNDERFLOW: f f_underflow = 0.000000
+main.cpp:44 FE_ALL_EXCEPT SUCCESS
+```
+### Ubuntu
+```
+main.cpp:16 RAISED FLOATING-POINT OVERFLOW: d xx = inf
+main.cpp:19 FE_ALL_EXCEPT SUCCESS
+main.cpp:28 RAISED FLOATING-POINT OVERFLOW: f f_overflow = inf
+main.cpp:31 FE_ALL_EXCEPT SUCCESS
+main.cpp:42 RAISED FLOATING-POINT UNDERFLOW: f f_underflow = 0.000000
+main.cpp:44 FE_ALL_EXCEPT SUCCESS
 ```
