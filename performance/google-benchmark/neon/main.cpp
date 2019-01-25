@@ -36,6 +36,17 @@ void mla_std(float* a, float* b, float* c, float* d, std::size_t size) {
   }
 }
 
+void add_std(double* a, double* b, double* c, std::size_t size) {
+  for (std::size_t i = 0; i < size; i++) {
+    c[i] = a[i] + b[i];
+  }
+}
+void mla_std(double* a, double* b, double* c, double* d, std::size_t size) {
+  for (std::size_t i = 0; i < size; i++) {
+    d[i] = a[i] + b[i] * c[i];
+  }
+}
+
 void add_std4(float* a, float* b, float* c, std::size_t size) {
   for (std::size_t i = 0; i < size; i += 4) {
     for (std::size_t j = 0; j < 4; j++) {
@@ -184,6 +195,24 @@ static void BM_add_neon(benchmark::State& state) {
 // NOTE: don't use align 1 or 2
 BENCHMARK(BM_add_neon)->Arg(1)->Arg(2)->Arg(4)->Arg(8)->Arg(16)->Arg(32)->Arg(64);
 
+static void BM_add_std_double(benchmark::State& state) {
+  const int align = state.range(0);
+  const int n     = 10000 * 4;
+
+  double* v1 = static_cast<double*>(aligned_alloc(align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
+  double* v2 = static_cast<double*>(aligned_alloc(align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
+  double* v3 = static_cast<double*>(aligned_alloc(align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
+  if (v1 == nullptr || v2 == nullptr || v3 == nullptr) state.SkipWithError("memory allocate error");
+
+  for (auto _ : state) add_std(v1, v2, v3, n);
+
+  if (v1 != nullptr) free(v1);
+  if (v2 != nullptr) free(v2);
+  if (v3 != nullptr) free(v3);
+}
+// NOTE: don't use align 1 or 2
+BENCHMARK(BM_add_std_double)->Arg(1)->Arg(2)->Arg(4)->Arg(8)->Arg(16)->Arg(32)->Arg(64);
+
 static void BM_mla_std(benchmark::State& state) {
   const int align = state.range(0);
   const int n     = 10000 * 4;
@@ -264,6 +293,26 @@ static void BM_mla_neon_aligned_alloc(benchmark::State& state) {
 }
 // NOTE: don't use align 1 or 2
 BENCHMARK(BM_mla_neon_aligned_alloc)->Arg(1)->Arg(2)->Arg(4)->Arg(8)->Arg(16)->Arg(32)->Arg(64);
+
+static void BM_mla_std_double(benchmark::State& state) {
+  const int align = state.range(0);
+  const int n     = 10000 * 4;
+
+  double* v1 = static_cast<double*>(::aligned_alloc(align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
+  double* v2 = static_cast<double*>(::aligned_alloc(align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
+  double* v3 = static_cast<double*>(::aligned_alloc(align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
+  double* v4 = static_cast<double*>(::aligned_alloc(align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
+  if (v1 == nullptr || v2 == nullptr || v3 == nullptr || v4 == nullptr) state.SkipWithError("memory allocate error");
+
+  for (auto _ : state) mla_std(v1, v2, v3, v4, n);
+
+  if (v1 != nullptr) free(v1);
+  if (v2 != nullptr) free(v2);
+  if (v3 != nullptr) free(v3);
+  if (v4 != nullptr) free(v4);
+}
+// NOTE: don't use align 1 or 2
+BENCHMARK(BM_mla_std_double)->Arg(1)->Arg(2)->Arg(4)->Arg(8)->Arg(16)->Arg(32)->Arg(64);
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
