@@ -18,6 +18,12 @@ int main(int argc, char* argv[]) {
     // NOTE: boost::algorithm::token_compress_on: 連続したdelimを1つのdelimとして扱う
     boost::algorithm::split(v, str, boost::is_any_of(delim), boost::algorithm::token_compress_on);
   }
+  {
+    std::vector<std::string> elems;
+    boost::algorithm::split(elems, "", boost::is_any_of(" "));
+    // NOTE: "" -> [""]
+    std::cout << "# of elems = " << elems.size() << std::endl;
+  }
 
   // NOTE: join
   {
