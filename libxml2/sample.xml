@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<top>
+  <objects>
+    <object key="dummy">
+    </object>
+    <!-- comment -->
+    <object key="test">
+      <hoge piyo="piyo" type="type"/>
+      <arguments>
+        <argument name="input" value="stdin"/>
+        <argument name="output" value="stdout"/>
+      </arguments>
+    </object>
+  </objects>
+</top>
