@@ -21,6 +21,8 @@ inline std::string GetProp(const xmlNode *node, const std::string &name) {
   return prop;
 }
 
+// NOTE: template arg type: std::function<xmlNodePtr(xmlNodePtr cur)>
+// NOTE: e.g. [](xmlNodePtr cur) { return cur; }
 template <class... Args>
 inline std::vector<xmlNodePtr> CurNextEach(xmlNodePtr cur, Args... args) {
   std::vector<xmlNodePtr> inputs = {cur};
