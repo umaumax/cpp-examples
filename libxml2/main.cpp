@@ -43,6 +43,16 @@ inline std::vector<xmlNodePtr> CurNextEach(xmlNodePtr cur, Args... args) {
   }
   return inputs;
 }
+
+inline xmlNodePtr CurNext(xmlNodePtr cur,
+                          std::function<bool(xmlNodePtr cur)> f) {
+  for (; cur != nullptr; cur = cur->next) {
+    if (f(cur)) {
+      break;
+    }
+  }
+  return cur;
+}
 }  // namespace libxml_util
 
 int main(int argc, char *argv[]) {
@@ -50,7 +60,6 @@ int main(int argc, char *argv[]) {
   xmlInitParser();
 
   xmlDocPtr doc;
-  xmlNodePtr cur;
 
   if (argc <= 1) {
     std::cerr << "Usage: " << argv[0] << "[xml filepath]" << std::endl;
@@ -65,8 +74,14 @@ int main(int argc, char *argv[]) {
   }
 
   std::map<std::string, std::string> argument_map;
-  cur                    = xmlDocGetRootElement(doc);
-  xmlNodePtr objects_cur = cur->xmlChildrenNode->next->xmlChildrenNode;
+  xmlNodePtr root_cur = xmlDocGetRootElement(doc);
+  xmlNodePtr cur;
+  for (cur = root_cur->xmlChildrenNode; cur != nullptr; cur = cur->next) {
+    if (libxml_util::GetName(cur) == "objects") {
+      break;
+    }
+  }
+  xmlNodePtr objects_cur = cur->xmlChildrenNode;
   // NOTE: chain method version
   {
     libxml_util::CurNextEach(
@@ -75,7 +90,12 @@ int main(int argc, char *argv[]) {
         [](xmlNodePtr cur) {
           return libxml_util::GetName(cur) == "object" &&
                          libxml_util::GetProp(cur, "key") == "test"
-                     ? cur->xmlChildrenNode->next->next->next->xmlChildrenNode
+                     ? libxml_util::CurNext(
+                           cur->xmlChildrenNode,
+                           [](xmlNodePtr cur) {
+                             return libxml_util::GetName(cur) == "arguments";
+                           })
+                           ->xmlChildrenNode
                      : nullptr;
         },
         // NOTE: arguments loop
@@ -97,8 +117,14 @@ int main(int argc, char *argv[]) {
           libxml_util::GetProp(objects_cur, "key") != "test") {
         continue;
       }
-      xmlNodePtr arguments_cur =
-          objects_cur->xmlChildrenNode->next->next->next->xmlChildrenNode;
+      xmlNodePtr arguments_cur;
+      for (cur = objects_cur->xmlChildrenNode; cur != nullptr;
+           cur = cur->next) {
+        if (libxml_util::GetName(cur) == "arguments") {
+          break;
+        }
+      }
+      arguments_cur = cur->xmlChildrenNode;
       for (; arguments_cur != nullptr; arguments_cur = arguments_cur->next) {
         if (libxml_util::GetName(arguments_cur) != "argument") {
           continue;

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <top>
+  <hoge piyo="piyo" type="type"/>
   <objects>
+    <hoge piyo="piyo" type="type"/>
     <object key="dummy">
     </object>
     <!-- comment -->
@@ -10,6 +12,7 @@
         <argument name="input" value="stdin"/>
         <argument name="output" value="stdout"/>
       </arguments>
+      <hoge piyo="piyo" type="type"/>
     </object>
   </objects>
 </top>
