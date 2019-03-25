@@ -55,8 +55,8 @@ inline xmlNodePtr CurNext(xmlNodePtr cur,
 }
 
 inline xmlNodePtr FindByName(xmlNodePtr cur, std::string name) {
-  return libxml_util::CurNext(cur, [](xmlNodePtr cur) {
-    return libxml_util::GetName(cur) == "arguments";
+  return libxml_util::CurNext(cur, [&name](xmlNodePtr cur) {
+    return libxml_util::GetName(cur) == name;
   });
 }
 }  // namespace libxml_util
