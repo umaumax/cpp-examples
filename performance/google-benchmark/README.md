@@ -44,9 +44,10 @@ BM_StringCopy             11 ns         11 ns   62763945
 * [google/benchmark: A microbenchmark support library]( https://github.com/google/benchmark )
 
 ### cross compile
+set below 2 values
 ```
-ROOT_PATH_OF_TOOLCHAIN=
-PATH_TO_CMAKE_TOOLCHAIN=
+ROOT_PATH_OF_TOOLCHAIN=/opt/xxx
+PATH_TO_CMAKE_TOOLCHAIN=xxx.cmake
 
 git clone https://github.com/google/benchmark.git
 pushd benchmark
@@ -70,3 +71,13 @@ make install
 sudo cp -Rv local $ROOT_PATH_OF_TOOLCHAIN/usr/
 popd
 ```
+
+## NOTE
+* [google/benchmark: A microbenchmark support library]( https://github.com/google/benchmark#runtime-and-reporting-considerations )
+> The number of iterations to run is determined dynamically by running the benchmark a few times and measuring the time taken and ensuring that the ultimate result will be statistically stable.
+  * `BENCHMARK`で指定した関数は何回か実行され，最終的な実行回数が決定される
+    * これは，`std::cout`を挿入するとわかりやすい
+    * 最終的な実行回数は`state.iterations()`or`state.max_iterations`で取得可能
+
+* [google/benchmark: A microbenchmark support library]( https://github.com/google/benchmark#user-defined-counters )
+  * 結果表示の場所にユーザ定義の変数の表示が可能だが，ベンチマーク結果の取得(e.g. 実行時間)はできないので注意
