@@ -81,3 +81,28 @@ popd
 
 * [google/benchmark: A microbenchmark support library]( https://github.com/google/benchmark#user-defined-counters )
   * 結果表示の場所にユーザ定義の変数の表示が可能だが，ベンチマーク結果の取得(e.g. 実行時間)はできないので注意
+
+### 無理やり計測時間を取得する
+```
+std::chrono::system_clock::time_point benchmark_start = std::chrono::system_clock::now();
+for (auto _ : state) {
+  // do processing
+}
+double benchmark_elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now() - benchmark_start).count();
+```
+
+### 処理バイト数や処理数を秒単位で出力する
+下記を設定することで，結果の出力時に，適切な単位で，補足情報が出力される
+```
+state.SetBytesProcessed(bytes);
+state.SetItemsProcessed(items);
+```
+
+e.g.
+```
+-----------------------------------------------------------------------------------
+Benchmark                            Time           CPU Iterations UserCounters...
+-----------------------------------------------------------------------------------
+BM_sequencial_access_B/8             3 ns          3 ns  237975441 2.79234GB/s    357.42M items/s
+BM_sequencial_access_B/16            3 ns          3 ns  252944089 5.58779GB/s   357.619M items/s
+```
