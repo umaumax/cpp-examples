@@ -71,6 +71,7 @@ make -j
 make install
 sudo cp -Rv local $ROOT_PATH_OF_TOOLCHAIN/usr/
 popd
+popd
 ```
 
 ## NOTE
