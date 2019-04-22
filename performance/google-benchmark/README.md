@@ -22,7 +22,7 @@ BENCHMARK_MAIN();
 ```
 
 ```
-$ g++ -std=c++11 main.cpp -lbenchmark -lpthread
+$ g++ -std=c++11 main.cpp -lbenchmark -lpthread -lgtest
 $ ./a.out
 2019-01-13 17:27:19
 Running ./a.out
@@ -55,16 +55,17 @@ pushd benchmark
 git clone https://github.com/google/googletest.git
 pushd googletest
 mkdir build
-cd build
+pushd build
 mkdir local
 cmake .. -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_TOOLCHAIN_FILE=$PATH_TO_CMAKE_TOOLCHAIN -DCMAKE_INSTALL_PREFIX=./local
 make -j
 make install
 sudo cp -Rv local $ROOT_PATH_OF_TOOLCHAIN/usr/
 popd
+popd
 
 mkdir build
-cd build
+pushd build
 cmake .. -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_TOOLCHAIN_FILE=$PATH_TO_CMAKE_TOOLCHAIN -DCMAKE_INSTALL_PREFIX=./local -DHAVE_POSIX_REGEX=0 -DHAVE_STD_REGEX=0 -DHAVE_STEADY_CLOCK=0
 make -j
 make install
