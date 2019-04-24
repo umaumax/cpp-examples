@@ -49,29 +49,35 @@ set below 2 values
 ROOT_PATH_OF_TOOLCHAIN=/opt/xxx
 PATH_TO_CMAKE_TOOLCHAIN=xxx.cmake
 
-git clone https://github.com/google/benchmark.git
-pushd benchmark
+function install_google_benchmark() {
+  [[ -z $ROOT_PATH_OF_TOOLCHAIN ]] && echo "set ROOT_PATH_OF_TOOLCHAIN" && return 1
+  [[ -z $PATH_TO_CMAKE_TOOLCHAIN ]] && echo "set PATH_TO_CMAKE_TOOLCHAIN" && return 1
 
-git clone https://github.com/google/googletest.git
-pushd googletest
-mkdir build
-pushd build
-mkdir local
-cmake .. -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_TOOLCHAIN_FILE=$PATH_TO_CMAKE_TOOLCHAIN -DCMAKE_INSTALL_PREFIX=./local
-make -j
-make install
-sudo cp -Rv local $ROOT_PATH_OF_TOOLCHAIN/usr/
-popd
-popd
+  git clone https://github.com/google/benchmark.git
+  pushd benchmark
 
-mkdir build
-pushd build
-cmake .. -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_TOOLCHAIN_FILE=$PATH_TO_CMAKE_TOOLCHAIN -DCMAKE_INSTALL_PREFIX=./local -DHAVE_POSIX_REGEX=0 -DHAVE_STD_REGEX=0 -DHAVE_STEADY_CLOCK=0
-make -j
-make install
-sudo cp -Rv local $ROOT_PATH_OF_TOOLCHAIN/usr/
-popd
-popd
+  git clone https://github.com/google/googletest.git
+  pushd googletest
+  mkdir build
+  pushd build
+  mkdir local
+  cmake .. -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_TOOLCHAIN_FILE=$PATH_TO_CMAKE_TOOLCHAIN -DCMAKE_INSTALL_PREFIX=./local
+  make -j
+  make install
+  [[ ! -e $ROOT_PATH_OF_TOOLCHAIN/usr/include/gtest ]] && sudo cp -Rv local $ROOT_PATH_OF_TOOLCHAIN/usr/
+  popd
+  popd
+
+  mkdir build
+  pushd build
+  cmake .. -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_TOOLCHAIN_FILE=$PATH_TO_CMAKE_TOOLCHAIN -DCMAKE_INSTALL_PREFIX=./local -DHAVE_POSIX_REGEX=0 -DHAVE_STD_REGEX=0 -DHAVE_STEADY_CLOCK=0
+  make -j
+  make install
+  sudo cp -Rv local $ROOT_PATH_OF_TOOLCHAIN/usr/
+  popd
+  popd
+}
+install_google_benchmark
 ```
 
 ## NOTE
