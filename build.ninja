@@ -2,7 +2,7 @@ CXX = g++
 CXX_FLAG = -std=c++11 -Wall -O2 -I. -Iinclude
 CXX_SHARED_LIB_FLAG = $CXX_FLAG -fPIC -shared -ldl
 
-BOOST_FLAG = -lboost_serialization
+BOOST_FLAG = -lboost_serialization -lboost_iostreams
 
 rule app
     command = $CXX $CXX_FLAG $in -o $out
