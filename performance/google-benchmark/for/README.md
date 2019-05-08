@@ -11,7 +11,7 @@ g++ -std=c++11 -O3 main.cpp -Wall -lbenchmark -lgtest
   * そもそも，これは正しいのかの考察が必要
 
 ### result
-
+#### x86
 ```
 [==========] Running 0 tests from 0 test suites.
 [==========] 0 tests from 0 test suites ran. (0 ms total)
@@ -47,3 +47,34 @@ BM_for_concat/4096       1754 ns       1727 ns     394031
 BM_for_concat/8192       3509 ns       3460 ns     202454
 ```
 
+#### arm
+```
+[==========] Running 0 tests from 0 test cases.
+[==========] 0 tests from 0 test cases ran. (1 ms total)
+[  PASSED  ] 0 tests.
+2021-01-31 01:18:26
+Running ./a.out
+Run on (4 X 2989.26 MHz CPU s)
+Load Average: 0.00, 0.02, 0.00
+-------------------------------------------------------------
+Benchmark                   Time             CPU   Iterations
+-------------------------------------------------------------
+BM_for_base/32           1675 ns         1674 ns       401316
+BM_for_base/64           3379 ns         3379 ns       211259
+BM_for_base/128          6462 ns         6460 ns       101044
+BM_for_base/256         13036 ns        13033 ns        53451
+BM_for_base/512         26282 ns        26276 ns        26688
+BM_for_base/1024        70852 ns        70831 ns        10195
+BM_for_base/2048       189013 ns       188965 ns         3715
+BM_for_base/4096       395204 ns       395083 ns         1783
+BM_for_base/8192       793570 ns       793202 ns          895
+BM_for_concat/32         1789 ns         1788 ns       391363
+BM_for_concat/64         3583 ns         3583 ns       195372
+BM_for_concat/128        7174 ns         7172 ns        97525
+BM_for_concat/256       14350 ns        14349 ns        48761
+BM_for_concat/512       28714 ns        28713 ns        24378
+BM_for_concat/1024      70381 ns        70382 ns         9933
+BM_for_concat/2048     175799 ns       175784 ns         3976
+BM_for_concat/4096     362569 ns       362571 ns         1928
+BM_for_concat/8192     732407 ns       732304 ns          937
+```
