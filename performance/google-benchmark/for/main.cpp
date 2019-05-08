@@ -33,6 +33,7 @@ static void BM_for_base(benchmark::State& state) {
       dummy++;
     }
   }
+  vec.emplace_back(dummy);
 }
 BENCHMARK(BM_for_base)
     ->Arg(32)
@@ -64,6 +65,7 @@ static void BM_for_concat(benchmark::State& state) {
       dummy++;
     }
   }
+  vec.emplace_back(dummy);
 }
 BENCHMARK(BM_for_concat)
     ->Arg(32)
