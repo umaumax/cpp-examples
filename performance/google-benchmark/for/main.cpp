@@ -78,6 +78,183 @@ BENCHMARK(BM_for_concat)
     ->Arg(4096)
     ->Arg(8192);
 
+static void BM_for_horizontal_access(benchmark::State& state) {
+  const int size = state.range(0);
+  std::vector<int> vec(size * size);
+
+  int dummy = 0;
+  for (auto _ : state) {
+    for (int j = 2; j < size - 2; j++) {
+      for (int i = 2; i < size - 2; i++) {
+        dummy += vec[j * size + i - 2];
+        dummy += vec[j * size + i - 1];
+        dummy += vec[j * size + i];
+        dummy += vec[j * size + i + 1];
+        dummy += vec[j * size + i + 2];
+      }
+    }
+  }
+}
+BENCHMARK(BM_for_horizontal_access)
+    ->Arg(32)
+    ->Arg(64)
+    ->Arg(128)
+    ->Arg(256)
+    ->Arg(512)
+    ->Arg(1024)
+    ->Arg(2048)
+    ->Arg(4096)
+    ->Arg(8192)
+    ->Arg(8192 * 2);
+
+static void BM_for_horizontal2_access(benchmark::State& state) {
+  const int size = state.range(0);
+  std::vector<int> vec(size * size);
+
+  int dummy = 0;
+  for (auto _ : state) {
+    for (int j = 2; j < size - 2; j++) {
+      for (int i = 2; i < size - 2; i++) {
+        // NOTE: loop unrolling
+        dummy += vec[j * size + i - 2];
+        dummy += vec[j * size + i - 1];
+        dummy += vec[j * size + i];
+        dummy += vec[j * size + i + 1];
+        dummy += vec[j * size + i + 2];
+        i++;
+        dummy += vec[j * size + i - 2];
+        dummy += vec[j * size + i - 1];
+        dummy += vec[j * size + i];
+        dummy += vec[j * size + i + 1];
+        dummy += vec[j * size + i + 2];
+      }
+    }
+  }
+}
+BENCHMARK(BM_for_horizontal2_access)
+    ->Arg(32)
+    ->Arg(64)
+    ->Arg(128)
+    ->Arg(256)
+    ->Arg(512)
+    ->Arg(1024)
+    ->Arg(2048)
+    ->Arg(4096)
+    ->Arg(8192)
+    ->Arg(8192 * 2);
+
+static void BM_for_horizontal4_access(benchmark::State& state) {
+  const int size = state.range(0);
+  std::vector<int> vec(size * size);
+
+  int dummy = 0;
+  for (auto _ : state) {
+    for (int j = 2; j < size - 2; j++) {
+      for (int i = 2; i < size - 2; i++) {
+        // NOTE: loop unrolling
+        dummy += vec[j * size + i - 2];
+        dummy += vec[j * size + i - 1];
+        dummy += vec[j * size + i];
+        dummy += vec[j * size + i + 1];
+        dummy += vec[j * size + i + 2];
+        i++;
+        dummy += vec[j * size + i - 2];
+        dummy += vec[j * size + i - 1];
+        dummy += vec[j * size + i];
+        dummy += vec[j * size + i + 1];
+        dummy += vec[j * size + i + 2];
+        i++;
+        dummy += vec[j * size + i - 2];
+        dummy += vec[j * size + i - 1];
+        dummy += vec[j * size + i];
+        dummy += vec[j * size + i + 1];
+        dummy += vec[j * size + i + 2];
+        i++;
+        dummy += vec[j * size + i - 2];
+        dummy += vec[j * size + i - 1];
+        dummy += vec[j * size + i];
+        dummy += vec[j * size + i + 1];
+        dummy += vec[j * size + i + 2];
+      }
+    }
+  }
+}
+BENCHMARK(BM_for_horizontal4_access)
+    ->Arg(32)
+    ->Arg(64)
+    ->Arg(128)
+    ->Arg(256)
+    ->Arg(512)
+    ->Arg(1024)
+    ->Arg(2048)
+    ->Arg(4096)
+    ->Arg(8192)
+    ->Arg(8192 * 2);
+
+static void BM_for_vertical_access(benchmark::State& state) {
+  const int size = state.range(0);
+  std::vector<int> vec(size * size);
+
+  int dummy = 0;
+  for (auto _ : state) {
+    for (int j = 2; j < size - 2; j++) {
+      for (int i = 2; i < size - 2; i++) {
+        dummy += vec[(j - 2) * size + i];
+        dummy += vec[(j - 1) * size + i];
+        dummy += vec[(j)*size + i];
+        dummy += vec[(j + 1) * size + i];
+        dummy += vec[(j + 2) * size + i];
+      }
+    }
+  }
+}
+BENCHMARK(BM_for_vertical_access)
+    ->Arg(32)
+    ->Arg(64)
+    ->Arg(128)
+    ->Arg(256)
+    ->Arg(512)
+    ->Arg(1024)
+    ->Arg(2048)
+    ->Arg(4096)
+    ->Arg(8192)
+    ->Arg(8192 * 2);
+
+static void BM_for_vertical2_access(benchmark::State& state) {
+  const int size = state.range(0);
+  std::vector<int> vec(size * size);
+
+  int dummy = 0;
+  for (auto _ : state) {
+    for (int j = 2; j < size - 2; j++) {
+      for (int i = 2; i < size - 2; i++) {
+        dummy += vec[(j - 2) * size + i];
+        dummy += vec[(j - 1) * size + i];
+        dummy += vec[(j)*size + i];
+        dummy += vec[(j + 1) * size + i];
+        dummy += vec[(j + 2) * size + i];
+        i++;
+        dummy += vec[(j - 2) * size + i];
+        dummy += vec[(j - 1) * size + i];
+        dummy += vec[(j)*size + i];
+        dummy += vec[(j + 1) * size + i];
+        dummy += vec[(j + 2) * size + i];
+      }
+    }
+  }
+}
+BENCHMARK(BM_for_vertical2_access)
+    ->Arg(32)
+    ->Arg(64)
+    ->Arg(128)
+    ->Arg(256)
+    ->Arg(512)
+    ->Arg(1024)
+    ->Arg(2048)
+    ->Arg(4096)
+    ->Arg(8192)
+    ->Arg(8192 * 2);
+
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   int gtest_ret = RUN_ALL_TESTS();
