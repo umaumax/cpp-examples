@@ -114,3 +114,50 @@ Benchmark                            Time           CPU Iterations UserCounters.
 BM_sequencial_access_B/8             3 ns          3 ns  237975441 2.79234GB/s    357.42M items/s
 BM_sequencial_access_B/16            3 ns          3 ns  252944089 5.58779GB/s   357.619M items/s
 ```
+
+### ベンチマークする関数の最低実行時間制御
+```
+BENCHMARK(BM_test)->MinTime(2.0); // Run for at least 2 seconds.
+```
+
+実行時引数
+```
+[--benchmark_min_time=<min_time>]
+```
+
+Q. 最大実行時間の制御は?
+A. ない
+無理やり止める方法はある
+
+ベンチマークを一時停止している処理が長いときに，ベンチマーク自体の時間としては換算されないため，ベンチマークに非常に時間がかかってしまうため，この機能が欲しい
+
+FYI:
+* [Fine\-grained iteration count control · Issue \#370 · google/benchmark]( https://github.com/google/benchmark/issues/370 )
+* [Support for benchmarking externally timed events, such as GPU code · Issue \#198 · google/benchmark]( https://github.com/google/benchmark/issues/198 )
+
+### ベンチマーク全体の実行回数制御
+```
+[--benchmark_repetitions=<num_repetitions>]
+```
+
+### ベンチマークの一時停止
+e.g. キャッシュラインをフラッシュさせたり，データをinitする場合など?
+```
+// You might have a microbenchmark that depends on two inputs.  For
+// example, the following code defines a family of microbenchmarks for
+// measuring the speed of set insertion.
+static void BM_SetInsert(benchmark::State& state) {
+  set<int> data;
+  for (auto _ : state) {
+    state.PauseTiming();
+    data = ConstructRandomSet(state.range(0));
+    state.ResumeTiming();
+    for (int j = 0; j < state.range(1); ++j)
+      data.insert(RandomNumber());
+  }
+}
+```
+
+[\`state\.PauseTiming\(\)\` and state\.ResumeTiming\(\) take a long time · Issue \#179 · google/benchmark]( https://github.com/google/benchmark/issues/179 )
+
+e.g. 2000nsほど?
