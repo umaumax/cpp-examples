@@ -78,3 +78,89 @@ BM_for_concat/2048     175799 ns       175784 ns         3976
 BM_for_concat/4096     362569 ns       362571 ns         1928
 BM_for_concat/8192     732407 ns       732304 ns          937
 ```
+
+### x86 full result
+```
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (1 ms total)
+[  PASSED  ] 0 tests.
+2019-05-09 22:35:55
+Running ./a.out
+Run on (4 X 1700 MHz CPU s)
+CPU Caches:
+  L1 Data 32K (x2)
+  L1 Instruction 32K (x2)
+  L2 Unified 262K (x2)
+  L3 Unified 4194K (x1)
+-----------------------------------------------------------------------
+Benchmark                                Time           CPU Iterations
+-----------------------------------------------------------------------
+BM_for_base/32                         437 ns        427 ns    1646900
+BM_for_base/64                         870 ns        849 ns     828314
+BM_for_base/128                       1798 ns       1671 ns     422435
+BM_for_base/256                       3453 ns       3373 ns     205193
+BM_for_base/512                       7089 ns       6868 ns     102712
+BM_for_base/1024                     14144 ns      13737 ns      49486
+BM_for_base/2048                     28050 ns      26589 ns      25777
+BM_for_base/4096                     55411 ns      54265 ns      13308
+BM_for_base/8192                    108410 ns     106109 ns       6441
+BM_for_concat/32                       455 ns        426 ns    1639041
+BM_for_concat/64                       860 ns        844 ns     816574
+BM_for_concat/128                     1714 ns       1682 ns     411636
+BM_for_concat/256                     3400 ns       3349 ns     208084
+BM_for_concat/512                     7352 ns       7141 ns      95503
+BM_for_concat/1024                   14265 ns      13882 ns      50802
+BM_for_concat/2048                   28133 ns      26383 ns      26138
+BM_for_concat/4096                   55928 ns      53467 ns      12958
+BM_for_concat/8192                  113447 ns     105798 ns       6278
+BM_for_horizontal_access/32            144 ns        131 ns    5328137
+BM_for_horizontal_access/64            409 ns        398 ns    1779495
+BM_for_horizontal_access/128          1226 ns       1170 ns     577672
+BM_for_horizontal_access/256          4365 ns       4011 ns     169852
+BM_for_horizontal_access/512         20191 ns      18393 ns      39217
+BM_for_horizontal_access/1024        61839 ns      56428 ns      13159
+BM_for_horizontal_access/2048       301393 ns     250092 ns       3432
+BM_for_horizontal_access/4096       875249 ns     807266 ns        783
+BM_for_horizontal_access/8192      3658447 ns    3234885 ns        234
+BM_for_horizontal_access/16384    12528527 ns   12096068 ns         59
+BM_for_horizontal2_access/32           123 ns        112 ns    6397660
+BM_for_horizontal2_access/64           291 ns        265 ns    2686480
+BM_for_horizontal2_access/128          903 ns        884 ns     821548
+BM_for_horizontal2_access/256         3403 ns       2917 ns     253033
+BM_for_horizontal2_access/512        11234 ns      10251 ns      69907
+BM_for_horizontal2_access/1024       41929 ns      38948 ns      17998
+BM_for_horizontal2_access/2048      132856 ns     123295 ns       5227
+BM_for_horizontal2_access/4096      453336 ns     414844 ns       1600
+BM_for_horizontal2_access/8192     1730195 ns    1568937 ns        463
+BM_for_horizontal2_access/16384    6426424 ns    5933941 ns        119
+BM_for_horizontal4_access/32           159 ns        148 ns    4699721
+BM_for_horizontal4_access/64           298 ns        283 ns    2532818
+BM_for_horizontal4_access/128          823 ns        741 ns     932326
+BM_for_horizontal4_access/256         1848 ns       1758 ns     403428
+BM_for_horizontal4_access/512         5020 ns       4911 ns     142791
+BM_for_horizontal4_access/1024       16239 ns      15329 ns      45098
+BM_for_horizontal4_access/2048       73891 ns      71533 ns      10301
+BM_for_horizontal4_access/4096      236306 ns     229765 ns       3075
+BM_for_horizontal4_access/8192      855346 ns     808236 ns        868
+BM_for_horizontal4_access/16384    3448346 ns    3339032 ns        216
+BM_for_vertical_access/32              157 ns        144 ns    4897399
+BM_for_vertical_access/64              544 ns        509 ns    1378604
+BM_for_vertical_access/128            1646 ns       1543 ns     457421
+BM_for_vertical_access/256            8391 ns       7520 ns      94661
+BM_for_vertical_access/512           21996 ns      20072 ns      35608
+BM_for_vertical_access/1024          67383 ns      62122 ns      10790
+BM_for_vertical_access/2048         234856 ns     215151 ns       3207
+BM_for_vertical_access/4096         868365 ns     798304 ns        906
+BM_for_vertical_access/8192        3092352 ns    2953060 ns        235
+BM_for_vertical_access/16384      11959222 ns   11680016 ns         61
+BM_for_vertical2_access/32             109 ns        101 ns    6855151
+BM_for_vertical2_access/64             229 ns        222 ns    3360280
+BM_for_vertical2_access/128            909 ns        851 ns     740984
+BM_for_vertical2_access/256           2795 ns       2707 ns     247761
+BM_for_vertical2_access/512           9350 ns       8997 ns      67178
+BM_for_vertical2_access/1024         40277 ns      37511 ns      17758
+BM_for_vertical2_access/2048        115412 ns     112951 ns       6071
+BM_for_vertical2_access/4096        420639 ns     408664 ns       1697
+BM_for_vertical2_access/8192       1620905 ns    1555858 ns        444
+BM_for_vertical2_access/16384      6108104 ns    5897138 ns        123
+```
