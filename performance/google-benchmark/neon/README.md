@@ -2,7 +2,7 @@
 
 ## how to compile
 ```
-g++ -std=c++11 test_main.cpp -lgtest -lbenchmark
+g++ -std=c++11 -O3 test_main.cpp -lgtest -lbenchmark -mfpu=neon -march=native
 ```
 
 ## vget_low, vget_high
