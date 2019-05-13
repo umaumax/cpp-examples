@@ -117,3 +117,13 @@ BM_mla_std_double/16               189285 ns       189259 ns         3692
 BM_mla_std_double/32               189284 ns       189197 ns         3694
 BM_mla_std_double/64               189293 ns       189209 ns         3696
 ```
+
+## FYI
+* [google/benchmark: A microbenchmark support library]( https://github.com/google/benchmark#passing-arguments )
+`Args`を利用すると，下記の`note`が出現するが，`-Wno-psabi`をコンパイルオプションに付加すると一時的に消去可能
+
+```
+note: parameter passing for argument of type 'xxx' will change in GCC 7.1
+```
+
+* [c\+\+ \- What does the the gcc warning "project parameter passing for X changed in GCC 7\.1" mean? \- Stack Overflow]( https://stackoverflow.com/questions/48149323/what-does-the-the-gcc-warning-project-parameter-passing-for-x-changed-in-gcc-7 )
