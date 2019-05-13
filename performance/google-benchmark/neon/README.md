@@ -2,7 +2,10 @@
 
 ## how to compile
 ```
+g++ -std=c++11 -O3 main.cpp -lgtest -lbenchmark -mfpu=neon -march=native
 g++ -std=c++11 -O3 test_main.cpp -lgtest -lbenchmark -mfpu=neon -march=native
+
+g++ -std=c++11 -O3 image_alignment_main.cpp -lbenchmark -lpthread -lgtest -mfpu=neon -march=native -Wno-psabi
 ```
 
 ## vget_low, vget_high
@@ -116,6 +119,44 @@ BM_mla_std_double/8                188710 ns       188694 ns         3703
 BM_mla_std_double/16               189285 ns       189259 ns         3692
 BM_mla_std_double/32               189284 ns       189197 ns         3694
 BM_mla_std_double/64               189293 ns       189209 ns         3696
+```
+
+### raspberry pi
+
+image_alignment_main.cpp
+
+alignmentやneonにかかわらず，処理時間が一定 -> メモリアクセスがボトルネック?
+```
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (1 ms total)
+[  PASSED  ] 0 tests.
+2019-05-13 16:06:45
+Running ./a.out
+Run on (4 X 1200 MHz CPU s)
+Load Average: 0.13, 0.11, 0.14
+-----------------------------------------------------------------------------
+Benchmark                                   Time             CPU   Iterations
+-----------------------------------------------------------------------------
+BM_image_vertical_access/48/0           12062 ns        12062 ns        58017
+BM_image_vertical_access/48/2           11734 ns        11733 ns        59321
+BM_image_vertical_access/50/0           11380 ns        11380 ns        61504
+BM_image_vertical_access/50/2           10123 ns        10122 ns        69145
+BM_image_vertical_access/50/4           11423 ns        11423 ns        61279
+BM_image_vertical_access/50/6            9961 ns         9961 ns        70274
+BM_image_vertical_access/64/0           18334 ns        18334 ns        38177
+BM_image_vertical_access/64/2           18719 ns        18719 ns        37331
+BM_image_vertical_access/70/0           20116 ns        20116 ns        34817
+BM_image_vertical_access/70/2           19673 ns        19670 ns        35553
+BM_image_vertical_access_neon/48/0      12062 ns        12062 ns        58037
+BM_image_vertical_access_neon/48/2      11743 ns        11743 ns        59658
+BM_image_vertical_access_neon/50/0      11380 ns        11380 ns        61498
+BM_image_vertical_access_neon/50/2      10122 ns        10123 ns        69140
+BM_image_vertical_access_neon/50/4      11423 ns        11423 ns        61278
+BM_image_vertical_access_neon/50/6       9964 ns         9961 ns        70272
+BM_image_vertical_access_neon/64/0      18335 ns        18335 ns        38180
+BM_image_vertical_access_neon/64/2      18676 ns        18676 ns        37572
+BM_image_vertical_access_neon/70/0      20102 ns        20102 ns        34821
+BM_image_vertical_access_neon/70/2      19675 ns        19675 ns        35589
 ```
 
 ## FYI
