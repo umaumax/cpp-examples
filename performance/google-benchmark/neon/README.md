@@ -126,7 +126,6 @@ BM_mla_std_double/64               189293 ns       189209 ns         3696
 
 image_alignment_main.cpp
 
-alignmentやneonにかかわらず，処理時間が一定 -> メモリアクセスがボトルネック?
 ```
 [==========] Running 0 tests from 0 test suites.
 [==========] 0 tests from 0 test suites ran. (1 ms total)
@@ -138,27 +137,26 @@ Load Average: 0.13, 0.11, 0.14
 -----------------------------------------------------------------------------
 Benchmark                                   Time             CPU   Iterations
 -----------------------------------------------------------------------------
-BM_image_vertical_access/48/0           12062 ns        12062 ns        58017
-BM_image_vertical_access/48/2           11734 ns        11733 ns        59321
-BM_image_vertical_access/50/0           11380 ns        11380 ns        61504
-BM_image_vertical_access/50/2           10123 ns        10122 ns        69145
-BM_image_vertical_access/50/4           11423 ns        11423 ns        61279
-BM_image_vertical_access/50/6            9961 ns         9961 ns        70274
-BM_image_vertical_access/64/0           18334 ns        18334 ns        38177
-BM_image_vertical_access/64/2           18719 ns        18719 ns        37331
-BM_image_vertical_access/70/0           20116 ns        20116 ns        34817
-BM_image_vertical_access/70/2           19673 ns        19670 ns        35553
-BM_image_vertical_access_neon/48/0      12062 ns        12062 ns        58037
-BM_image_vertical_access_neon/48/2      11743 ns        11743 ns        59658
-BM_image_vertical_access_neon/50/0      11380 ns        11380 ns        61498
-BM_image_vertical_access_neon/50/2      10122 ns        10123 ns        69140
-BM_image_vertical_access_neon/50/4      11423 ns        11423 ns        61278
-BM_image_vertical_access_neon/50/6       9964 ns         9961 ns        70272
-BM_image_vertical_access_neon/64/0      18335 ns        18335 ns        38180
-BM_image_vertical_access_neon/64/2      18676 ns        18676 ns        37572
-BM_image_vertical_access_neon/70/0      20102 ns        20102 ns        34821
-BM_image_vertical_access_neon/70/2      19675 ns        19675 ns        35589
-
+BM_image_vertical_access/48/0           12173 ns        12161 ns        57585
+BM_image_vertical_access/48/2           11840 ns        11834 ns        59159
+BM_image_vertical_access/50/0           11470 ns        11469 ns        60994
+BM_image_vertical_access/50/2           10201 ns        10201 ns        68621
+BM_image_vertical_access/50/4           11514 ns        11513 ns        60800
+BM_image_vertical_access/50/6           10065 ns        10047 ns        69703
+BM_image_vertical_access/64/0           18537 ns        18528 ns        37772
+BM_image_vertical_access/64/2           18861 ns        18853 ns        37091
+BM_image_vertical_access/70/0           20448 ns        20428 ns        34312
+BM_image_vertical_access/70/2           19885 ns        19884 ns        35178
+BM_image_vertical_access_neon/48/0       9443 ns         9442 ns        74137
+BM_image_vertical_access_neon/48/2       8256 ns         8255 ns        84828
+BM_image_vertical_access_neon/50/0       7064 ns         7063 ns        99102
+BM_image_vertical_access_neon/50/2       6942 ns         6942 ns       100849
+BM_image_vertical_access_neon/50/4       7020 ns         7017 ns        99782
+BM_image_vertical_access_neon/50/6       6955 ns         6951 ns       100755
+BM_image_vertical_access_neon/64/0      16156 ns        16154 ns        43339
+BM_image_vertical_access_neon/64/2      13851 ns        13850 ns        50523
+BM_image_vertical_access_neon/70/0      15673 ns        15665 ns        44725
+BM_image_vertical_access_neon/70/2      18546 ns        18532 ns        37754
 $ ./a.out
 [==========] Running 1 test from 1 test suite.
 [----------] Global test environment set-up.

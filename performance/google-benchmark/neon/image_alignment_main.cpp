@@ -51,7 +51,7 @@ void image_vertical_access_neon(uint16_t *src, uint16_t *dst, int width,
 
   for (int j = padding; j < height - padding; j++) {
     int i = padding;
-    for (; i < (width - padding) & ~(8 - 1); i += 8) {
+    for (; i < ((width - padding) & ~(8 - 1)); i += 8) {
       uint16x8_t neon_p0, neon_p1, neon_p2, neon_p3, neon_p4;
       uint16x8_t neon_dst;
       neon_p0  = vld1q_u16(p0);
