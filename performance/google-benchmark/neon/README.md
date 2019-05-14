@@ -184,6 +184,40 @@ BM_image_edge_access_neon/480     471831 ns       471747 ns         1481
 BM_image_edge_access_neon/960    1879477 ns      1879295 ns          369
 ```
 
+```
+# ./a.out
+[==========] Running 0 tests from 0 test cases.
+[==========] 0 tests from 0 test cases ran. (1 ms total)
+[  PASSED  ] 0 tests.
+2021-05-08 03:54:44
+Running ./a.out
+Run on (4 X 2989.26 MHz CPU s)
+Load Average: 0.04, 0.08, 0.02
+-----------------------------------------------------------------------------
+Benchmark                                   Time             CPU   Iterations
+-----------------------------------------------------------------------------
+BM_image_vertical_access/48/0            5263 ns         5260 ns       131999
+BM_image_vertical_access/48/2            6177 ns         6173 ns       112570
+BM_image_vertical_access/50/0            6403 ns         6396 ns       109108
+BM_image_vertical_access/50/2            5915 ns         5909 ns       118212
+BM_image_vertical_access/50/4            6408 ns         6404 ns       109648
+BM_image_vertical_access/50/6            5920 ns         5917 ns       118420
+BM_image_vertical_access/64/0            9042 ns         9034 ns        77428
+BM_image_vertical_access/64/2           10320 ns        10312 ns        67893
+BM_image_vertical_access/70/0           11701 ns        11691 ns        59857
+BM_image_vertical_access/70/2           10359 ns        10352 ns        67510
+BM_image_vertical_access_neon/48/0       5260 ns         5258 ns       132538
+BM_image_vertical_access_neon/48/2       6172 ns         6161 ns       113599
+BM_image_vertical_access_neon/50/0       6373 ns         6367 ns       109799
+BM_image_vertical_access_neon/50/2       5910 ns         5905 ns       118507
+BM_image_vertical_access_neon/50/4       6378 ns         6377 ns       109853
+BM_image_vertical_access_neon/50/6       5908 ns         5904 ns       118538
+BM_image_vertical_access_neon/64/0       9036 ns         9028 ns        77258
+BM_image_vertical_access_neon/64/2      10315 ns        10306 ns        68002
+BM_image_vertical_access_neon/70/0      11693 ns        11685 ns        59767
+BM_image_vertical_access_neon/70/2      10359 ns        10353 ns        67668
+```
+
 ## FYI
 * [google/benchmark: A microbenchmark support library]( https://github.com/google/benchmark#passing-arguments )
 `Args`を利用すると，下記の`note`が出現するが，`-Wno-psabi`をコンパイルオプションに付加すると一時的に消去可能

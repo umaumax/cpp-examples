@@ -90,7 +90,7 @@ void image_vertical_access_neon(uint16_t *src, uint16_t *dst, int width,
 }
 
 static void BM_image_vertical_access(benchmark::State &state) {
-  const int align = 16 / sizeof(uint16_t);
+  const int align = 16;
 
   const int width        = state.range(0);
   const int height       = state.range(0);
@@ -98,15 +98,16 @@ static void BM_image_vertical_access(benchmark::State &state) {
 
   const int n = width_stride * height;
 
+  int padding=align/sizeof(uint16_t)-2;
   uint16_t *src = static_cast<uint16_t *>(aligned_alloc(
-      align, (sizeof(uint16_t) * n + (align - 1)) & ~(align - 1)));
+      align, (sizeof(uint16_t) * (n+padding) + (align - 1)) & ~(align - 1)));
   uint16_t *dst = static_cast<uint16_t *>(aligned_alloc(
-      align, (sizeof(uint16_t) * n + (align - 1)) & ~(align - 1)));
+      align, (sizeof(uint16_t) * (n+padding) + (align - 1)) & ~(align - 1)));
   if (src == nullptr || dst == nullptr)
     state.SkipWithError("memory allocate error");
 
   for (auto _ : state) {
-    image_vertical_access(src, dst, width, height, width_stride);
+    image_vertical_access(src+padding, dst+padding, width, height, width_stride);
   }
 
   if (src != nullptr) free(src);
@@ -125,7 +126,7 @@ BENCHMARK(BM_image_vertical_access)
     ->Args({70, 2});
 
 static void BM_image_vertical_access_neon(benchmark::State &state) {
-  const int align = 16 / sizeof(uint16_t);
+  const int align = 16;
 
   const int width        = state.range(0);
   const int height       = state.range(0);
@@ -133,15 +134,16 @@ static void BM_image_vertical_access_neon(benchmark::State &state) {
 
   const int n = width_stride * height;
 
+  int padding=align/sizeof(uint16_t)-2;
   uint16_t *src = static_cast<uint16_t *>(aligned_alloc(
-      align, (sizeof(uint16_t) * n + (align - 1)) & ~(align - 1)));
+      align, (sizeof(uint16_t) * (n+padding) + (align - 1)) & ~(align - 1)));
   uint16_t *dst = static_cast<uint16_t *>(aligned_alloc(
-      align, (sizeof(uint16_t) * n + (align - 1)) & ~(align - 1)));
+      align, (sizeof(uint16_t) * (n+padding) + (align - 1)) & ~(align - 1)));
   if (src == nullptr || dst == nullptr)
     state.SkipWithError("memory allocate error");
 
   for (auto _ : state) {
-    image_vertical_access_neon(src, dst, width, height, width_stride);
+    image_vertical_access_neon(src+padding, dst+padding, width, height, width_stride);
   }
 
   if (src != nullptr) free(src);
