@@ -75,7 +75,7 @@ void image_edge_access_neon(int8_t *src, int16_t *dst, int width, int height) {
 
   for (int j = 1; j < height - 1; j++) {
     int i = 1;
-    for (; i < (width - 1) & ~(16 - 1); i += 16) {
+    for (; i < ((width - 1) & ~(16 - 1)); i += 16) {
       int8x16_t p_u_lane     = vld1q_s8(p_u);
       int8x8_t p_u_low_lane  = vget_low_s8(p_u_lane);
       int8x8_t p_u_high_lane = vget_low_s8(p_u_lane);
@@ -176,13 +176,15 @@ TEST(std_and_neon_test, image_edge_access) {
   for (int i = 0; i < n; i++) {
     src_std[i]  = i;
     src_neon[i] = i;
+    src_std[i]  = 0;
+    src_neon[i] = 0;
   }
 
   image_edge_access(src_std, dst_std, width, height);
   image_edge_access_neon(src_neon, dst_neon, width, height);
 
   for (int i = 0; i < n; i++) {
-    EXPECT_FLOAT_EQ(dst_std[i], dst_neon[i]);
+    EXPECT_EQ(dst_std[i], dst_neon[i]);
   }
 
   if (src_std != nullptr) free(src_std);

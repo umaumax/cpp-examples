@@ -127,13 +127,15 @@ BM_mla_std_double/64               189293 ns       189209 ns         3696
 image_alignment_main.cpp
 
 ```
+$ ./a.out
 [==========] Running 0 tests from 0 test suites.
 [==========] 0 tests from 0 test suites ran. (1 ms total)
 [  PASSED  ] 0 tests.
-2019-05-13 16:06:45
+2019-05-14 15:34:55
 Running ./a.out
 Run on (4 X 1200 MHz CPU s)
-Load Average: 0.13, 0.11, 0.14
+Load Average: 0.17, 0.21, 0.16
+***WARNING*** CPU scaling is enabled, the benchmark real time measurements may be noisy and will incur extra overhead.
 -----------------------------------------------------------------------------
 Benchmark                                   Time             CPU   Iterations
 -----------------------------------------------------------------------------
@@ -162,24 +164,24 @@ $ ./a.out
 [----------] Global test environment set-up.
 [----------] 1 test from std_and_neon_test
 [ RUN      ] std_and_neon_test.image_edge_access
-[       OK ] std_and_neon_test.image_edge_access (0 ms)
-[----------] 1 test from std_and_neon_test (0 ms total)
+[       OK ] std_and_neon_test.image_edge_access (1 ms)
+[----------] 1 test from std_and_neon_test (1 ms total)
 
 [----------] Global test environment tear-down
 [==========] 1 test from 1 test suite ran. (1 ms total)
 [  PASSED  ] 1 test.
-2019-05-14 15:17:03
+2019-05-14 15:32:16
 Running ./a.out
 Run on (4 X 1200 MHz CPU s)
-Load Average: 0.20, 0.20, 0.11
+Load Average: 0.38, 0.29, 0.17
 ***WARNING*** CPU scaling is enabled, the benchmark real time measurements may be noisy and will incur extra overhead.
------------------------------------------------------------------------
-Benchmark                             Time             CPU   Iterations
------------------------------------------------------------------------
-BM_image_edge_access/48           13405 ns        13404 ns        47490
-BM_image_edge_access/96           39522 ns        39520 ns        17712
-BM_image_edge_access_neon/48      13406 ns        13405 ns        52223
-BM_image_edge_access_neon/96      39522 ns        39518 ns        17714
+------------------------------------------------------------------------
+Benchmark                              Time             CPU   Iterations
+------------------------------------------------------------------------
+BM_image_edge_access/480          703607 ns       703539 ns          995
+BM_image_edge_access/960         2864188 ns      2863903 ns          243
+BM_image_edge_access_neon/480     471831 ns       471747 ns         1481
+BM_image_edge_access_neon/960    1879477 ns      1879295 ns          369
 ```
 
 ## FYI
