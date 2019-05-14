@@ -6,6 +6,7 @@ g++ -std=c++11 -O3 main.cpp -lgtest -lbenchmark -mfpu=neon -march=native
 g++ -std=c++11 -O3 test_main.cpp -lgtest -lbenchmark -mfpu=neon -march=native
 
 g++ -std=c++11 -O3 image_alignment_main.cpp -lbenchmark -lpthread -lgtest -mfpu=neon -march=native -Wno-psabi
+g++ -std=c++11 -O3 image_edge_detection_main.cpp -lbenchmark -lpthread -lgtest -mfpu=neon -march=native -Wno-psabi
 ```
 
 ## vget_low, vget_high
@@ -157,6 +158,30 @@ BM_image_vertical_access_neon/64/0      18335 ns        18335 ns        38180
 BM_image_vertical_access_neon/64/2      18676 ns        18676 ns        37572
 BM_image_vertical_access_neon/70/0      20102 ns        20102 ns        34821
 BM_image_vertical_access_neon/70/2      19675 ns        19675 ns        35589
+
+$ ./a.out
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from std_and_neon_test
+[ RUN      ] std_and_neon_test.image_edge_access
+[       OK ] std_and_neon_test.image_edge_access (0 ms)
+[----------] 1 test from std_and_neon_test (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (1 ms total)
+[  PASSED  ] 1 test.
+2019-05-14 15:17:03
+Running ./a.out
+Run on (4 X 1200 MHz CPU s)
+Load Average: 0.20, 0.20, 0.11
+***WARNING*** CPU scaling is enabled, the benchmark real time measurements may be noisy and will incur extra overhead.
+-----------------------------------------------------------------------
+Benchmark                             Time             CPU   Iterations
+-----------------------------------------------------------------------
+BM_image_edge_access/48           13405 ns        13404 ns        47490
+BM_image_edge_access/96           39522 ns        39520 ns        17712
+BM_image_edge_access_neon/48      13406 ns        13405 ns        52223
+BM_image_edge_access_neon/96      39522 ns        39518 ns        17714
 ```
 
 ## FYI
@@ -168,3 +193,9 @@ note: parameter passing for argument of type 'xxx' will change in GCC 7.1
 ```
 
 * [c\+\+ \- What does the the gcc warning "project parameter passing for X changed in GCC 7\.1" mean? \- Stack Overflow]( https://stackoverflow.com/questions/48149323/what-does-the-the-gcc-warning-project-parameter-passing-for-x-changed-in-gcc-7 )
+
+----
+
+* [ARM NEONの使い方 加算編 \- おぺんcv]( http://atkg.hatenablog.com/entry/2016/10/09/173928 )
+* [ARM NEONの使い方 減算編 \- おぺんcv]( http://atkg.hatenablog.com/entry/2016/10/16/180214 )
+* [ARM NEONの使い方 乗算編 \- おぺんcv]( http://atkg.hatenablog.com/entry/2016/11/06/201835 )
