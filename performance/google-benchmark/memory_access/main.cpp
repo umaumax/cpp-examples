@@ -19,16 +19,14 @@ void BM_sequencial_access_Util(benchmark::State& state, std::size_t size) {
   uint8_t* dst = new uint8_t[size];
   std::chrono::system_clock::time_point benchmark_start =
       std::chrono::system_clock::now();
-  // 容量が少ないときには，forやmemcpyの処理負荷のう方が高い?
-  // memcpyではsystem call呼び出しだったような...
-  for (auto _ : state) {
+  while (state.KeepRunning()) {
     for (int i = 0; i < loop_num; i++) {
-      for (int index = 0; index < size / 8; index++) {
+      for (int index = 0; index < size / (int)sizeof(std::size_t); index++) {
         ((std::size_t*)dst)[index] = ((std::size_t*)src)[index];
       }
-      // std::memcpy(dst, src, size);
-      n++;
     }
+    // std::memcpy(dst, src, size);
+    n++;
   }
   double benchmark_elapsed =
       std::chrono::duration_cast<std::chrono::nanoseconds>(
