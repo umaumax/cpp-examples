@@ -23,3 +23,14 @@ for (auto _ : state) {}
 ```
 while (state.KeepRunning()) {}
 ```
+
+* forで同様な処理をserialで実行するよりもparallelで実行すると良い?
+  * 考える観点としては，内部処理時間が短い場合にはただ単に，forの条件判定の回数が少なくなるだけ?
+  * `BM_sequencial_access_serial`
+  * `BM_sequencial_access_parallel`
+
+### 最適化防止
+```
+volatile int dummy = sum;
+dummy;
+```
