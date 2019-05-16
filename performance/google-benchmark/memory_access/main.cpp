@@ -82,12 +82,12 @@ static void BM_image_grid_access(benchmark::State& state, int x_grid_size,
   uint8_t* src = new uint8_t[size];
   while (state.KeepRunning()) {
     // NOTE: width,heightはconstではないので，最適化が無効?
-    for (std::size_t j = 0; j < height; j += y_grid_size) {
-      for (std::size_t i = 0; i < width; i += x_grid_size) {
+    for (int j = 0; j < height; j += y_grid_size) {
+      for (int i = 0; i < width; i += x_grid_size) {
         const std::size_t offset = width * j + i;
         // NOTE: grid_sizeはconstなので，最適化が有効
-        for (std::size_t j = 0; j < y_grid_size; j++) {
-          for (std::size_t i = 0; i < x_grid_size; i++) {
+        for (int j = 0; j < y_grid_size; j++) {
+          for (int i = 0; i < x_grid_size; i++) {
             sum += src[offset + width * j + i];
           }
         }
