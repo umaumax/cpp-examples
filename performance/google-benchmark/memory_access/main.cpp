@@ -12,6 +12,112 @@
 #include <benchmark/benchmark.h>
 #include <gtest/gtest.h>
 
+#define DECL_BM_image_grid_access_const_image_n (1024)
+#define DECL_BM_image_grid_access_const_n(const_type, n)                        \
+  static void BM_image_grid_access_##n##_const_##const_type(                    \
+      benchmark::State& state) {                                                \
+    constexpr const_type x_grid_size = n;                                       \
+    constexpr const_type y_grid_size = n;                                       \
+    constexpr const_type width       = DECL_BM_image_grid_access_const_image_n; \
+    constexpr const_type height      = DECL_BM_image_grid_access_const_image_n; \
+    assert(width % x_grid_size == 0 &&                                          \
+           "width must be multiple of x_grid_size");                            \
+    assert(height % y_grid_size == 0 &&                                         \
+           "height must be multiple of y_grid_size");                           \
+    std::size_t size = width * height;                                          \
+    int sum          = 0;                                                       \
+    uint8_t* src     = new uint8_t[size];                                       \
+    while (state.KeepRunning()) {                                               \
+      for (int j = 0; j < height; j += y_grid_size) {                           \
+        for (int i = 0; i < width; i += x_grid_size) {                          \
+          const std::size_t offset = width * j + i;                             \
+          for (int j = 0; j < y_grid_size; j++) {                               \
+            for (int i = 0; i < x_grid_size; i++) {                             \
+              sum += src[offset + width * j + i];                               \
+            }                                                                   \
+          }                                                                     \
+        }                                                                       \
+      }                                                                         \
+    }                                                                           \
+    delete[] src;                                                               \
+    volatile int dummy = sum;                                                   \
+    dummy;                                                                      \
+    state.SetLabel(#const_type);                                                \
+  }                                                                             \
+  BENCHMARK(BM_image_grid_access_##n##_const_##const_type)                      \
+      ->Arg(DECL_BM_image_grid_access_const_image_n);
+DECL_BM_image_grid_access_const_n(int, 1);
+DECL_BM_image_grid_access_const_n(int, 2);
+DECL_BM_image_grid_access_const_n(int, 4);
+DECL_BM_image_grid_access_const_n(int, 8);
+DECL_BM_image_grid_access_const_n(int, 16);
+DECL_BM_image_grid_access_const_n(int, 32);
+DECL_BM_image_grid_access_const_n(int, 64);
+DECL_BM_image_grid_access_const_n(int, 128);
+DECL_BM_image_grid_access_const_n(int, 256);
+DECL_BM_image_grid_access_const_n(int, 512);
+DECL_BM_image_grid_access_const_n(int, 1024);
+
+DECL_BM_image_grid_access_const_n(size_t, 1);
+DECL_BM_image_grid_access_const_n(size_t, 2);
+DECL_BM_image_grid_access_const_n(size_t, 4);
+DECL_BM_image_grid_access_const_n(size_t, 8);
+DECL_BM_image_grid_access_const_n(size_t, 16);
+DECL_BM_image_grid_access_const_n(size_t, 32);
+DECL_BM_image_grid_access_const_n(size_t, 64);
+DECL_BM_image_grid_access_const_n(size_t, 128);
+DECL_BM_image_grid_access_const_n(size_t, 256);
+DECL_BM_image_grid_access_const_n(size_t, 512);
+DECL_BM_image_grid_access_const_n(size_t, 1024);
+//
+static void BM_image_grid_access(benchmark::State& state, int x_grid_size,
+                                 int y_grid_size) {
+  std::size_t width  = state.range(0);
+  std::size_t height = state.range(0);
+  assert(width % x_grid_size == 0 && "width must be multiple of x_grid_size");
+  assert(height % y_grid_size == 0 && "height must be multiple of y_grid_size");
+  std::size_t size = width * height;
+
+  int sum      = 0;
+  uint8_t* src = new uint8_t[size];
+  while (state.KeepRunning()) {
+    // NOTE: width,heightはconstではないので，最適化が無効?
+    for (std::size_t j = 0; j < height; j += y_grid_size) {
+      for (std::size_t i = 0; i < width; i += x_grid_size) {
+        const std::size_t offset = width * j + i;
+        // NOTE: grid_sizeはconstなので，最適化が有効
+        for (std::size_t j = 0; j < y_grid_size; j++) {
+          for (std::size_t i = 0; i < x_grid_size; i++) {
+            sum += src[offset + width * j + i];
+          }
+        }
+      }
+    }
+  }
+  delete[] src;
+
+  volatile int dummy = sum;
+  dummy;
+}
+
+#define DECL_BM_image_grid_access_n(n)                            \
+  static void BM_image_grid_access_##n(benchmark::State& state) { \
+    BM_image_grid_access(state, n, n);                            \
+  }                                                               \
+  BENCHMARK(BM_image_grid_access_##n)->Arg(1024);
+
+DECL_BM_image_grid_access_n(1);
+DECL_BM_image_grid_access_n(2);
+DECL_BM_image_grid_access_n(4);
+DECL_BM_image_grid_access_n(8);
+DECL_BM_image_grid_access_n(16);
+DECL_BM_image_grid_access_n(32);
+DECL_BM_image_grid_access_n(64);
+DECL_BM_image_grid_access_n(128);
+DECL_BM_image_grid_access_n(256);
+DECL_BM_image_grid_access_n(512);
+DECL_BM_image_grid_access_n(1024);
+
 static void BM_sequencial_access_1_seq(benchmark::State& state) {
   std::size_t width  = state.range(0);
   std::size_t height = 8;

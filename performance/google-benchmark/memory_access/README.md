@@ -34,3 +34,20 @@ while (state.KeepRunning()) {}
 volatile int dummy = sum;
 dummy;
 ```
+
+### 画像の画素に対してのグリッドアクセス
+* indexの`i`,`j`と`y_grid_size`,`x_grid_size`の型が異なると最適化が行われない or castコスト?
+  * `int i`と`constexpr std::size_t x_grid_size = 1;`でさえNG
+* `grid_size`が中間の値の場合には速度低下
+```
+for (std::size_t j = 0; j < height; j += y_grid_size) {
+  for (std::size_t i = 0; i < width; i += x_grid_size) {
+    const std::size_t offset = width * j + i;
+    for (std::size_t j = 0; j < y_grid_size; j++) {
+      for (std::size_t i = 0; i < x_grid_size; i++) {
+        sum += src[offset + width * j + i];
+      }
+    }
+  }
+}
+```
