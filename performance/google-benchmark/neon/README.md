@@ -29,6 +29,30 @@ g++ -std=c++11 -O3 image_edge_detection_main.cpp -lbenchmark -lpthread -lgtest -
 * WARN
   * 演算結果は四捨五入される
 
+## unsignedの型同士の減算
+
+[ARM NEONの使い方 減算編 \- おぺんcv]( http://atkg.hatenablog.com/entry/2016/10/16/180214 )
+
+「符号なしベクタの減算について」の項目を参照
+
+### unsignedの型同士の減算(実は絶対値で十分な場合)
+`abd`を利用すれば良い
+
+## cast
+[ARM Information Center]( http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0472jj/chr1359125040547_00003.html )
+> 以下のコンパイラ組み込み関数は、4 つの符号付き 16 ビット整数を持つベクタを、4 つの符号無し整数を持つベクタに変換します。
+> uint16x4_t vreinterpret_u16_s16(int16x4_t a);
+> 以下のコンパイラ組み込み関数は、4 つの 32 ビット浮動小数点整数を持つベクタを、4 つの符号付き整数を持つベクタに変換します。
+> int8x16_t vreinterpretq_s8_f32(float32x4_t a);
+> これらの変換では、ベクタによって表現されるビットパターンは変わりません。
+
+また，コンパイル時のフラグに`-flax-vector-conversions`を追加すると，
+例えば，`uint16x8_t`から`int16x8_t`は自動変換され(前述の通りビットパターンに変化がない)，
+エラーがなくなるが，可読性の観点から推奨しない
+```
+note: use -flax-vector-conversions to permit conversions between vectors with differing element types or numbers of subparts
+```
+
 ## result
 ### arm
 neon用に16Byte alignmentする必要がある(for speedup)
