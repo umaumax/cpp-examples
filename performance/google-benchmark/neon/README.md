@@ -53,6 +53,9 @@ g++ -std=c++11 -O3 image_edge_detection_main.cpp -lbenchmark -lpthread -lgtest -
 note: use -flax-vector-conversions to permit conversions between vectors with differing element types or numbers of subparts
 ```
 
+## vextq
+* 同一のレーンを指定すれば，ベクトル要素のローテーションが可能となる(定数値のみのローテーション)
+
 ## result
 ### arm
 neon用に16Byte alignmentする必要がある(for speedup)
