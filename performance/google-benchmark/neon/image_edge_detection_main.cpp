@@ -7,15 +7,15 @@
 #include <arm_neon.h>
 #endif
 
-void image_edge_access(int8_t *src, int16_t *dst, int width, int height) {
+void image_edge_access(uint8_t *src, int16_t *dst, int width, int height) {
   // NOTE: src.width  - 1 =  dst.width
   // NOTE: src.height - 1 =  dst.height
   src += width + 1;
-  int8_t *p_u = src - width;
-  int8_t *p_l = src - 1;
-  int8_t *p_c = src;
-  int8_t *p_r = src + 1;
-  int8_t *p_d = src + width;
+  uint8_t *p_u = src - width;
+  uint8_t *p_l = src - 1;
+  uint8_t *p_c = src;
+  uint8_t *p_r = src + 1;
+  uint8_t *p_d = src + width;
 
   dst += width + 1;
   int16_t *pxx = dst + width * height * 0;
@@ -60,15 +60,16 @@ static void BM_image_edge_access(benchmark::State &state) {
 
   const int n = width * height;
 
-  int8_t *src = static_cast<int8_t *>(
-      aligned_alloc(align, (sizeof(int8_t) * n + (align - 1)) & ~(align - 1)));
+  uint8_t *src = static_cast<uint8_t *>(
+      aligned_alloc(align, (sizeof(uint8_t) * n + (align - 1)) & ~(align - 1)));
   int16_t *dst = static_cast<int16_t *>(aligned_alloc(
       align, (sizeof(int16_t) * 3 * n + (align - 1)) & ~(align - 1)));
   if (src == nullptr || dst == nullptr)
     state.SkipWithError("memory allocate error");
 
   for (int i = 0; i < n; i++) {
-    src[i] = i;
+    uint8_t val = i * i + i % 10;
+    src[i]      = val;
   }
 
   for (auto _ : state) {
@@ -81,15 +82,15 @@ static void BM_image_edge_access(benchmark::State &state) {
 BENCHMARK(BM_image_edge_access)->Arg(48)->Arg(50)->Arg(480)->Arg(960);
 
 #ifdef __ARM_NEON
-void image_edge_access_neon(int8_t *src, int16_t *dst, int width, int height) {
+void image_edge_access_neon(uint8_t *src, int16_t *dst, int width, int height) {
   // NOTE: src.width  - 1 =  dst.width
   // NOTE: src.height - 1 =  dst.height
   src += width + 1;
-  int8_t *p_u = src - width;
-  int8_t *p_l = src - 1;
-  int8_t *p_c = src;
-  int8_t *p_r = src + 1;
-  int8_t *p_d = src + width;
+  uint8_t *p_u = src - width;
+  uint8_t *p_l = src - 1;
+  uint8_t *p_c = src;
+  uint8_t *p_r = src + 1;
+  uint8_t *p_d = src + width;
 
   dst += width + 1;
   int16_t *pxx = dst + width * height * 0;
@@ -100,26 +101,31 @@ void image_edge_access_neon(int8_t *src, int16_t *dst, int width, int height) {
   for (int j = 0; j < height - margin; j++) {
     int i = 0;
     for (; i < ((width - margin) & ~(16 - 1)); i += 16) {
-      int8x16_t p_u_lane     = vld1q_s8(p_u);
-      int8x8_t p_u_low_lane  = vget_low_s8(p_u_lane);
-      int8x8_t p_u_high_lane = vget_high_s8(p_u_lane);
-      int8x16_t p_d_lane     = vld1q_s8(p_d);
-      int8x8_t p_d_low_lane  = vget_low_s8(p_d_lane);
-      int8x8_t p_d_high_lane = vget_high_s8(p_d_lane);
-      int8x16_t p_l_lane     = vld1q_s8(p_l);
-      int8x8_t p_l_low_lane  = vget_low_s8(p_l_lane);
-      int8x8_t p_l_high_lane = vget_high_s8(p_l_lane);
-      int8x16_t p_r_lane     = vld1q_s8(p_r);
-      int8x8_t p_r_low_lane  = vget_low_s8(p_r_lane);
-      int8x8_t p_r_high_lane = vget_high_s8(p_r_lane);
+      uint8x16_t p_u_lane     = vld1q_u8(p_u);
+      uint8x8_t p_u_low_lane  = vget_low_u8(p_u_lane);
+      uint8x8_t p_u_high_lane = vget_high_u8(p_u_lane);
+      uint8x16_t p_d_lane     = vld1q_u8(p_d);
+      uint8x8_t p_d_low_lane  = vget_low_u8(p_d_lane);
+      uint8x8_t p_d_high_lane = vget_high_u8(p_d_lane);
+      uint8x16_t p_l_lane     = vld1q_u8(p_l);
+      uint8x8_t p_l_low_lane  = vget_low_u8(p_l_lane);
+      uint8x8_t p_l_high_lane = vget_high_u8(p_l_lane);
+      uint8x16_t p_r_lane     = vld1q_u8(p_r);
+      uint8x8_t p_r_low_lane  = vget_low_u8(p_r_lane);
+      uint8x8_t p_r_high_lane = vget_high_u8(p_r_lane);
 
       // NOTE:
       // int dx = ((int)(*p_l) - (int)(*p_r) + 1) >> 1;
       // int dy = ((int)(*p_u) - (int)(*p_d) + 1) >> 1;
-      int16x8_t dx_low_lane  = vsubl_s8(p_l_low_lane, p_r_low_lane);
-      int16x8_t dx_high_lane = vsubl_s8(p_l_high_lane, p_r_high_lane);
-      int16x8_t dy_low_lane  = vsubl_s8(p_u_low_lane, p_d_low_lane);
-      int16x8_t dy_high_lane = vsubl_s8(p_u_high_lane, p_d_high_lane);
+      uint16x8_t dx_low_lane_u  = vsubl_u8(p_l_low_lane, p_r_low_lane);
+      uint16x8_t dx_high_lane_u = vsubl_u8(p_l_high_lane, p_r_high_lane);
+      uint16x8_t dy_low_lane_u  = vsubl_u8(p_u_low_lane, p_d_low_lane);
+      uint16x8_t dy_high_lane_u = vsubl_u8(p_u_high_lane, p_d_high_lane);
+
+      int16x8_t dx_low_lane  = vreinterpretq_s16_u16(dx_low_lane_u);
+      int16x8_t dx_high_lane = vreinterpretq_s16_u16(dx_high_lane_u);
+      int16x8_t dy_low_lane  = vreinterpretq_s16_u16(dy_low_lane_u);
+      int16x8_t dy_high_lane = vreinterpretq_s16_u16(dy_high_lane_u);
 
       dx_low_lane  = vrshrq_n_s16(dx_low_lane, 1);
       dx_high_lane = vrshrq_n_s16(dx_high_lane, 1);
@@ -186,16 +192,16 @@ static void BM_image_edge_access_neon(benchmark::State &state) {
   const int height = state.range(0);
   const int n      = width * height;
 
-  int8_t *src = static_cast<int8_t *>(
-      aligned_alloc(align, (sizeof(int8_t) * n + (align - 1)) & ~(align - 1)));
+  uint8_t *src = static_cast<uint8_t *>(
+      aligned_alloc(align, (sizeof(uint8_t) * n + (align - 1)) & ~(align - 1)));
   int16_t *dst = static_cast<int16_t *>(aligned_alloc(
       align, (sizeof(int16_t) * 3 * n + (align - 1)) & ~(align - 1)));
   if (src == nullptr || dst == nullptr)
     state.SkipWithError("memory allocate error");
 
   for (int i = 0; i < n; i++) {
-    int8_t val = i * i + i % 10;
-    src[i]     = val;
+    uint8_t val = i * i + i % 10;
+    src[i]      = val;
   }
 
   for (auto _ : state) {
@@ -213,17 +219,17 @@ TEST(std_and_neon_test, image_edge_access) {
   const int height = 32;
   const int n      = width * height;
 
-  int8_t *src_std = static_cast<int8_t *>(
-      aligned_alloc(align, (sizeof(int8_t) * n + (align - 1)) & ~(align - 1)));
-  int16_t *dst_std = static_cast<int16_t *>(aligned_alloc(
+  uint8_t *src_std = static_cast<uint8_t *>(
+      aligned_alloc(align, (sizeof(uint8_t) * n + (align - 1)) & ~(align - 1)));
+  int16_t *dst_std  = static_cast<int16_t *>(aligned_alloc(
       align, (sizeof(int16_t) * 3 * n + (align - 1)) & ~(align - 1)));
-  int8_t *src_neon = static_cast<int8_t *>(
-      aligned_alloc(align, (sizeof(int8_t) * n + (align - 1)) & ~(align - 1)));
+  uint8_t *src_neon = static_cast<uint8_t *>(
+      aligned_alloc(align, (sizeof(uint8_t) * n + (align - 1)) & ~(align - 1)));
   int16_t *dst_neon = static_cast<int16_t *>(aligned_alloc(
       align, (sizeof(int16_t) * 3 * n + (align - 1)) & ~(align - 1)));
 
   for (int i = 0; i < n; i++) {
-    int8_t val  = i * i + i % 10;
+    uint8_t val = i * i + i % 10;
     src_std[i]  = val;
     src_neon[i] = val;
   }
@@ -239,15 +245,20 @@ TEST(std_and_neon_test, image_edge_access) {
   for (int i = 0; i < 3 * n; i++) {
     EXPECT_EQ(dst_std[i], dst_neon[i]);
   }
-  // for (int j = 0; j < height; j++) {
-  // for (int i = 0; i < width; i++) {
-  // if (dst_std[j * width + i] != dst_neon[j * width + i]) {
-  // std::printf("%4d(%d)", dst_std[j * width + i], dst_neon[j * width + i]);
-  // }
-  // std::printf(",");
-  // }
-  // std::printf("\n");
-  // }
+  // NOTE: dump
+  for (int k = 0; k < 3; k++) {
+    for (int j = 0; j < height; j++) {
+      for (int i = 0; i < width; i++) {
+        int index = k * width * height + j * width + i;
+        if (dst_std[index] != dst_neon[index]) {
+          std::printf("%4d(%d)", dst_std[index], dst_neon[index]);
+        }
+        std::printf(",");
+      }
+      std::printf("\n");
+    }
+    std::printf("\n");
+  }
 
   if (src_std != nullptr) free(src_std);
   if (dst_std != nullptr) free(dst_std);
