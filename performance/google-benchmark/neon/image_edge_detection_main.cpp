@@ -17,20 +17,38 @@ void image_edge_access(int8_t *src, int16_t *dst, int width, int height) {
   int8_t *p_r = src + 1;
   int8_t *p_d = src + width;
 
-  for (int j = 1; j < height - 1; j++) {
-    int i = 1;
-    for (; i < width - 1; i++) {
-      int16_t dx = *p_l - *p_r;
-      int16_t dy = *p_u - *p_d;
-      // NOTE: 3分割で代入するように
-      *dst = dx * dx + dy * dy + dx * dy;
-      dst += 1;
+  dst += width + 1;
+  int16_t *pxx = dst + width * height * 0;
+  int16_t *pxy = dst + width * height * 1;
+  int16_t *pyy = dst + width * height * 2;
+
+  const int margin = 2;
+  for (int j = 0; j < height - margin; j++) {
+    int i = 0;
+    for (; i < width - margin; i++) {
+      int dx = ((int)(*p_l) - (int)(*p_r) + 1) >> 1;
+      int dy = ((int)(*p_u) - (int)(*p_d) + 1) >> 1;
+      *pxx   = (int16_t)(dx * dx);
+      *pxy   = (int16_t)(dx * dy);
+      *pyy   = (int16_t)(dy * dy);
+
+      pxx += 1;
+      pxy += 1;
+      pyy += 1;
       p_u += 1;
       p_l += 1;
       p_c += 1;
       p_r += 1;
       p_d += 1;
     }
+    pxx += margin;
+    pxy += margin;
+    pyy += margin;
+    p_u += margin;
+    p_l += margin;
+    p_c += margin;
+    p_r += margin;
+    p_d += margin;
   }
 }
 
@@ -44,8 +62,8 @@ static void BM_image_edge_access(benchmark::State &state) {
 
   int8_t *src = static_cast<int8_t *>(
       aligned_alloc(align, (sizeof(int8_t) * n + (align - 1)) & ~(align - 1)));
-  int16_t *dst = static_cast<int16_t *>(
-      aligned_alloc(align, (sizeof(int16_t) * n + (align - 1)) & ~(align - 1)));
+  int16_t *dst = static_cast<int16_t *>(aligned_alloc(
+      align, (sizeof(int16_t) * 3 * n + (align - 1)) & ~(align - 1)));
   if (src == nullptr || dst == nullptr)
     state.SkipWithError("memory allocate error");
 
@@ -60,7 +78,7 @@ static void BM_image_edge_access(benchmark::State &state) {
   if (src != nullptr) free(src);
   if (dst != nullptr) free(dst);
 }
-BENCHMARK(BM_image_edge_access)->Arg(480)->Arg(960);
+BENCHMARK(BM_image_edge_access)->Arg(48)->Arg(50)->Arg(480)->Arg(960);
 
 #ifdef __ARM_NEON
 void image_edge_access_neon(int8_t *src, int16_t *dst, int width, int height) {
@@ -73,80 +91,111 @@ void image_edge_access_neon(int8_t *src, int16_t *dst, int width, int height) {
   int8_t *p_r = src + 1;
   int8_t *p_d = src + width;
 
-  for (int j = 1; j < height - 1; j++) {
-    int i = 1;
-    for (; i < ((width - 1) & ~(16 - 1)); i += 16) {
+  dst += width + 1;
+  int16_t *pxx = dst + width * height * 0;
+  int16_t *pxy = dst + width * height * 1;
+  int16_t *pyy = dst + width * height * 2;
+
+  const int margin = 2;
+  for (int j = 0; j < height - margin; j++) {
+    int i = 0;
+    for (; i < ((width - margin) & ~(16 - 1)); i += 16) {
       int8x16_t p_u_lane     = vld1q_s8(p_u);
       int8x8_t p_u_low_lane  = vget_low_s8(p_u_lane);
-      int8x8_t p_u_high_lane = vget_low_s8(p_u_lane);
+      int8x8_t p_u_high_lane = vget_high_s8(p_u_lane);
       int8x16_t p_d_lane     = vld1q_s8(p_d);
       int8x8_t p_d_low_lane  = vget_low_s8(p_d_lane);
-      int8x8_t p_d_high_lane = vget_low_s8(p_d_lane);
+      int8x8_t p_d_high_lane = vget_high_s8(p_d_lane);
       int8x16_t p_l_lane     = vld1q_s8(p_l);
       int8x8_t p_l_low_lane  = vget_low_s8(p_l_lane);
-      int8x8_t p_l_high_lane = vget_low_s8(p_l_lane);
+      int8x8_t p_l_high_lane = vget_high_s8(p_l_lane);
       int8x16_t p_r_lane     = vld1q_s8(p_r);
       int8x8_t p_r_low_lane  = vget_low_s8(p_r_lane);
-      int8x8_t p_r_high_lane = vget_low_s8(p_r_lane);
+      int8x8_t p_r_high_lane = vget_high_s8(p_r_lane);
 
+      // NOTE:
+      // int dx = ((int)(*p_l) - (int)(*p_r) + 1) >> 1;
+      // int dy = ((int)(*p_u) - (int)(*p_d) + 1) >> 1;
       int16x8_t dx_low_lane  = vsubl_s8(p_l_low_lane, p_r_low_lane);
       int16x8_t dx_high_lane = vsubl_s8(p_l_high_lane, p_r_high_lane);
       int16x8_t dy_low_lane  = vsubl_s8(p_u_low_lane, p_d_low_lane);
       int16x8_t dy_high_lane = vsubl_s8(p_u_high_lane, p_d_high_lane);
 
+      dx_low_lane  = vrshrq_n_s16(dx_low_lane, 1);
+      dx_high_lane = vrshrq_n_s16(dx_high_lane, 1);
+      dy_low_lane  = vrshrq_n_s16(dy_low_lane, 1);
+      dy_high_lane = vrshrq_n_s16(dy_high_lane, 1);
+
+      // NOTE:
+      // *pxx   = (int16_t)(dx * dx);
+      // *pxy   = (int16_t)(dx * dy);
+      // *pyy   = (int16_t)(dy * dy);
       int16x8_t dx_dx_low_lane  = vmulq_s16(dx_low_lane, dx_low_lane);
       int16x8_t dx_dx_high_lane = vmulq_s16(dx_high_lane, dx_high_lane);
       int16x8_t dy_dy_low_lane  = vmulq_s16(dy_low_lane, dy_low_lane);
       int16x8_t dy_dy_high_lane = vmulq_s16(dy_high_lane, dy_high_lane);
       int16x8_t dx_dy_low_lane  = vmulq_s16(dx_low_lane, dy_low_lane);
       int16x8_t dx_dy_high_lane = vmulq_s16(dx_high_lane, dy_high_lane);
-      int16x8_t dst_low_lane =
-          vaddq_s16(vaddq_s16(dx_dx_low_lane, dy_dy_low_lane), dx_dy_low_lane);
-      int16x8_t dst_high_lane = vaddq_s16(
-          vaddq_s16(dx_dx_high_lane, dy_dy_high_lane), dx_dy_high_lane);
 
-      vst1q_s16(dst, dst_low_lane);
-      vst1q_s16(dst + 8, dst_high_lane);
+      vst1q_s16(pxx, dx_dx_low_lane);
+      vst1q_s16(pxx + 8, dx_dx_high_lane);
+      vst1q_s16(pxy, dx_dy_low_lane);
+      vst1q_s16(pxy + 8, dx_dy_high_lane);
+      vst1q_s16(pyy, dy_dy_low_lane);
+      vst1q_s16(pyy + 8, dy_dy_high_lane);
 
-      dst += 16;
+      pxx += 16;
+      pxy += 16;
+      pyy += 16;
       p_u += 16;
       p_l += 16;
       p_c += 16;
       p_r += 16;
       p_d += 16;
     }
-    for (; i < width - 1; i++) {
-      int16_t dx = *p_l - *p_r;
-      int16_t dy = *p_u - *p_d;
-      // NOTE: 3分割で代入するように
-      *dst = dx * dx + dy * dy + dx * dy;
-      dst += 1;
+    for (; i < width - margin; i++) {
+      int dx = ((int)(*p_l) - (int)(*p_r) + 1) >> 1;
+      int dy = ((int)(*p_u) - (int)(*p_d) + 1) >> 1;
+      *pxx   = (int16_t)(dx * dx);
+      *pxy   = (int16_t)(dx * dy);
+      *pyy   = (int16_t)(dy * dy);
+
+      pxx += 1;
+      pxy += 1;
+      pyy += 1;
       p_u += 1;
       p_l += 1;
       p_c += 1;
       p_r += 1;
       p_d += 1;
     }
+    pxx += margin;
+    pxy += margin;
+    pyy += margin;
+    p_u += margin;
+    p_l += margin;
+    p_c += margin;
+    p_r += margin;
+    p_d += margin;
   }
 }
 
 static void BM_image_edge_access_neon(benchmark::State &state) {
-  const int align = 16;
-
+  const int align  = 64;
   const int width  = state.range(0);
   const int height = state.range(0);
-
-  const int n = width * height;
+  const int n      = width * height;
 
   int8_t *src = static_cast<int8_t *>(
       aligned_alloc(align, (sizeof(int8_t) * n + (align - 1)) & ~(align - 1)));
-  int16_t *dst = static_cast<int16_t *>(
-      aligned_alloc(align, (sizeof(int16_t) * n + (align - 1)) & ~(align - 1)));
+  int16_t *dst = static_cast<int16_t *>(aligned_alloc(
+      align, (sizeof(int16_t) * 3 * n + (align - 1)) & ~(align - 1)));
   if (src == nullptr || dst == nullptr)
     state.SkipWithError("memory allocate error");
 
   for (int i = 0; i < n; i++) {
-    src[i] = i;
+    int8_t val = i * i + i % 10;
+    src[i]     = val;
   }
 
   for (auto _ : state) {
@@ -156,36 +205,49 @@ static void BM_image_edge_access_neon(benchmark::State &state) {
   if (src != nullptr) free(src);
   if (dst != nullptr) free(dst);
 }
-BENCHMARK(BM_image_edge_access_neon)->Arg(480)->Arg(960);
+BENCHMARK(BM_image_edge_access_neon)->Arg(48)->Arg(50)->Arg(480)->Arg(960);
 
 TEST(std_and_neon_test, image_edge_access) {
-  const int align  = 16;
-  const int width  = 48;
-  const int height = 48;
+  const int align  = 64;
+  const int width  = 32;
+  const int height = 32;
   const int n      = width * height;
 
   int8_t *src_std = static_cast<int8_t *>(
       aligned_alloc(align, (sizeof(int8_t) * n + (align - 1)) & ~(align - 1)));
-  int16_t *dst_std = static_cast<int16_t *>(
-      aligned_alloc(align, (sizeof(int16_t) * n + (align - 1)) & ~(align - 1)));
+  int16_t *dst_std = static_cast<int16_t *>(aligned_alloc(
+      align, (sizeof(int16_t) * 3 * n + (align - 1)) & ~(align - 1)));
   int8_t *src_neon = static_cast<int8_t *>(
       aligned_alloc(align, (sizeof(int8_t) * n + (align - 1)) & ~(align - 1)));
-  int16_t *dst_neon = static_cast<int16_t *>(
-      aligned_alloc(align, (sizeof(int16_t) * n + (align - 1)) & ~(align - 1)));
+  int16_t *dst_neon = static_cast<int16_t *>(aligned_alloc(
+      align, (sizeof(int16_t) * 3 * n + (align - 1)) & ~(align - 1)));
 
   for (int i = 0; i < n; i++) {
-    src_std[i]  = i;
-    src_neon[i] = i;
-    src_std[i]  = 0;
-    src_neon[i] = 0;
+    int8_t val  = i * i + i % 10;
+    src_std[i]  = val;
+    src_neon[i] = val;
+  }
+  // NOTE: init value(becasuse edge of matrix is init value)
+  for (int i = 0; i < 3 * n; i++) {
+    dst_std[i]  = 0;
+    dst_neon[i] = 0;
   }
 
   image_edge_access(src_std, dst_std, width, height);
   image_edge_access_neon(src_neon, dst_neon, width, height);
 
-  for (int i = 0; i < n; i++) {
+  for (int i = 0; i < 3 * n; i++) {
     EXPECT_EQ(dst_std[i], dst_neon[i]);
   }
+  // for (int j = 0; j < height; j++) {
+  // for (int i = 0; i < width; i++) {
+  // if (dst_std[j * width + i] != dst_neon[j * width + i]) {
+  // std::printf("%4d(%d)", dst_std[j * width + i], dst_neon[j * width + i]);
+  // }
+  // std::printf(",");
+  // }
+  // std::printf("\n");
+  // }
 
   if (src_std != nullptr) free(src_std);
   if (dst_std != nullptr) free(dst_std);

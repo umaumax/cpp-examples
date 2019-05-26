@@ -159,29 +159,34 @@ BM_image_vertical_access_neon/64/0      16156 ns        16154 ns        43339
 BM_image_vertical_access_neon/64/2      13851 ns        13850 ns        50523
 BM_image_vertical_access_neon/70/0      15673 ns        15665 ns        44725
 BM_image_vertical_access_neon/70/2      18546 ns        18532 ns        37754
+
 $ ./a.out
 [==========] Running 1 test from 1 test suite.
 [----------] Global test environment set-up.
 [----------] 1 test from std_and_neon_test
 [ RUN      ] std_and_neon_test.image_edge_access
-[       OK ] std_and_neon_test.image_edge_access (1 ms)
-[----------] 1 test from std_and_neon_test (1 ms total)
+[       OK ] std_and_neon_test.image_edge_access (0 ms)
+[----------] 1 test from std_and_neon_test (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 1 test from 1 test suite ran. (1 ms total)
+[==========] 1 test from 1 test suite ran. (0 ms total)
 [  PASSED  ] 1 test.
-2019-05-14 15:32:16
+2019-05-26 12:49:41
 Running ./a.out
 Run on (4 X 1200 MHz CPU s)
-Load Average: 0.38, 0.29, 0.17
+Load Average: 0.33, 0.21, 0.15
 ***WARNING*** CPU scaling is enabled, the benchmark real time measurements may be noisy and will incur extra overhead.
 ------------------------------------------------------------------------
 Benchmark                              Time             CPU   Iterations
 ------------------------------------------------------------------------
-BM_image_edge_access/480          703607 ns       703539 ns          995
-BM_image_edge_access/960         2864188 ns      2863903 ns          243
-BM_image_edge_access_neon/480     471831 ns       471747 ns         1481
-BM_image_edge_access_neon/960    1879477 ns      1879295 ns          369
+BM_image_edge_access/48            29750 ns        29750 ns        23526
+BM_image_edge_access/50            32316 ns        32315 ns        21657
+BM_image_edge_access/480         3410993 ns      3410865 ns          205
+BM_image_edge_access/960        14019959 ns     14019177 ns           49
+BM_image_edge_access_neon/48       16010 ns        16009 ns        43710
+BM_image_edge_access_neon/50        8688 ns         8688 ns        80544
+BM_image_edge_access_neon/480    1557470 ns      1557344 ns          455
+BM_image_edge_access_neon/960    4999546 ns      4999030 ns          131
 ```
 
 ```
