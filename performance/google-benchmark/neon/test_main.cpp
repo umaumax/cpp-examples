@@ -79,6 +79,20 @@ TEST(arm_neon_test, vrshrn_n) {
 
   EXPECT_EQ(dst_vec, ans_vec);
 }
+
+TEST(arm_neon_test, vrshrq_n_s16) {
+  std::vector<short> src_vec = {0, 1, 2, 7, 8, 14, 15, 16};
+  std::vector<short> dst_vec(8);
+  std::vector<short> ans_vec = {0, 0, 0, 0, 1, 1, 1, 1};
+  auto src                   = src_vec.data();
+  auto dst                   = dst_vec.data();
+  auto ans                   = ans_vec.data();
+  int16x8_t src_lane         = vld1q_s16(src);
+  int16x8_t dst_lane = vrshrq_n_s16(src_lane, 4);  // (x + 8) / 16 (round off)
+  vst1q_s16(dst, dst_lane);
+
+  EXPECT_EQ(dst_vec, ans_vec);
+}
 #endif
 
 int main(int argc, char** argv) {
