@@ -141,14 +141,76 @@ TEST(add_test, std_and_neon) {
 // ====
 // ====
 
+#ifdef __ARM_NEON
+// NOTE: offsetがずれている場合のペナルティは1cycleのはずなので，それほど差はない(offset:1-7,9-15が多少遅い程度)
+// Load,Storeが1.4倍遅くなる?
+// ロード/ストア操作で使用されるアドレスが64ビットアラインドでない場合、1サイクルが追加されることがあります。
+static void BM_access_offset(benchmark::State& state) {
+  const int offset = state.range(0);
+  const int n      = 1600000;
+  const int align  = 64;
+  const int margin = 64;
+
+  uint8_t* src = static_cast<uint8_t*>(aligned_alloc(
+      align, (sizeof(uint8_t) * (n + margin) + (align - 1)) & ~(align - 1)));
+  if (src == nullptr) state.SkipWithError("memory allocate error");
+
+  const int loop_unrolling_num = 8;
+  uint8_t dst[16 * loop_unrolling_num];
+  for (auto _ : state) {
+    for (int i = offset; i < n + margin; i += 16 * loop_unrolling_num) {
+      for (int j = 0; j < loop_unrolling_num; j++) {
+        uint8x16_t src_lane = vld1q_u8(src + i + 16 * j);
+        vst1q_u8(dst + 16 * j, src_lane);
+      }
+    }
+  }
+
+  volatile int dummy = dst[0];
+  dummy;
+  // NOTE: you don't have to write below code
+  // for (int i = 0; i < 16 * loop_unrolling_num; i++) {
+  // volatile int dummy = dst[i];
+  // dummy;
+  // }
+  if (src != nullptr) free(src);
+}
+BENCHMARK(BM_access_offset)
+    ->Arg(1)
+    ->Arg(2)
+    ->Arg(3)
+    ->Arg(4)
+    ->Arg(5)
+    ->Arg(6)
+    ->Arg(7)
+    ->Arg(8)
+    ->Arg(9)
+    ->Arg(10)
+    ->Arg(11)
+    ->Arg(12)
+    ->Arg(13)
+    ->Arg(14)
+    ->Arg(15)
+    ->Arg(16)
+    ->Arg(24)
+    ->Arg(32)
+    ->Arg(40)
+    ->Arg(48)
+    ->Arg(64);
+#endif
+
 static void BM_add_std(benchmark::State& state) {
   const int align = state.range(0);
   const int n     = 10000 * 4;
 
-  float* v1 = static_cast<float*>(aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  float* v2 = static_cast<float*>(aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  float* v3 = static_cast<float*>(aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  if (v1 == nullptr || v2 == nullptr || v3 == nullptr) state.SkipWithError("memory allocate error");
+  float* v1 = static_cast<float*>(
+      aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  float* v2 = static_cast<float*>(
+      aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  float* v3 = static_cast<float*>(
+      aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  if (v1 == nullptr || v2 == nullptr || v3 == nullptr)
+    state.SkipWithError("memory allocate error");
 
   for (auto _ : state) add_std(v1, v2, v3, n);
 
@@ -157,16 +219,27 @@ static void BM_add_std(benchmark::State& state) {
   if (v3 != nullptr) free(v3);
 }
 // NOTE: don't use align 1 or 2
-BENCHMARK(BM_add_std)->Arg(1)->Arg(2)->Arg(4)->Arg(8)->Arg(16)->Arg(32)->Arg(64);
+BENCHMARK(BM_add_std)
+    ->Arg(1)
+    ->Arg(2)
+    ->Arg(4)
+    ->Arg(8)
+    ->Arg(16)
+    ->Arg(32)
+    ->Arg(64);
 
 static void BM_add_std4(benchmark::State& state) {
   const int align = state.range(0);
   const int n     = 10000 * 4;
 
-  float* v1 = static_cast<float*>(aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  float* v2 = static_cast<float*>(aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  float* v3 = static_cast<float*>(aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  if (v1 == nullptr || v2 == nullptr || v3 == nullptr) state.SkipWithError("memory allocate error");
+  float* v1 = static_cast<float*>(
+      aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  float* v2 = static_cast<float*>(
+      aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  float* v3 = static_cast<float*>(
+      aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  if (v1 == nullptr || v2 == nullptr || v3 == nullptr)
+    state.SkipWithError("memory allocate error");
 
   for (auto _ : state) add_std4(v1, v2, v3, n);
 
@@ -175,16 +248,27 @@ static void BM_add_std4(benchmark::State& state) {
   if (v3 != nullptr) free(v3);
 }
 // NOTE: don't use align 1 or 2
-BENCHMARK(BM_add_std4)->Arg(1)->Arg(2)->Arg(4)->Arg(8)->Arg(16)->Arg(32)->Arg(64);
+BENCHMARK(BM_add_std4)
+    ->Arg(1)
+    ->Arg(2)
+    ->Arg(4)
+    ->Arg(8)
+    ->Arg(16)
+    ->Arg(32)
+    ->Arg(64);
 
 static void BM_add_neon(benchmark::State& state) {
   const int align = state.range(0);
   const int n     = 10000 * 4;
 
-  float* v1 = static_cast<float*>(aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  float* v2 = static_cast<float*>(aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  float* v3 = static_cast<float*>(aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  if (v1 == nullptr || v2 == nullptr || v3 == nullptr) state.SkipWithError("memory allocate error");
+  float* v1 = static_cast<float*>(
+      aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  float* v2 = static_cast<float*>(
+      aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  float* v3 = static_cast<float*>(
+      aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  if (v1 == nullptr || v2 == nullptr || v3 == nullptr)
+    state.SkipWithError("memory allocate error");
 
   for (auto _ : state) add_neon(v1, v2, v3, n);
 
@@ -193,16 +277,27 @@ static void BM_add_neon(benchmark::State& state) {
   if (v3 != nullptr) free(v3);
 }
 // NOTE: don't use align 1 or 2
-BENCHMARK(BM_add_neon)->Arg(1)->Arg(2)->Arg(4)->Arg(8)->Arg(16)->Arg(32)->Arg(64);
+BENCHMARK(BM_add_neon)
+    ->Arg(1)
+    ->Arg(2)
+    ->Arg(4)
+    ->Arg(8)
+    ->Arg(16)
+    ->Arg(32)
+    ->Arg(64);
 
 static void BM_add_std_double(benchmark::State& state) {
   const int align = state.range(0);
   const int n     = 10000 * 4;
 
-  double* v1 = static_cast<double*>(aligned_alloc(align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
-  double* v2 = static_cast<double*>(aligned_alloc(align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
-  double* v3 = static_cast<double*>(aligned_alloc(align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
-  if (v1 == nullptr || v2 == nullptr || v3 == nullptr) state.SkipWithError("memory allocate error");
+  double* v1 = static_cast<double*>(
+      aligned_alloc(align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
+  double* v2 = static_cast<double*>(
+      aligned_alloc(align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
+  double* v3 = static_cast<double*>(
+      aligned_alloc(align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
+  if (v1 == nullptr || v2 == nullptr || v3 == nullptr)
+    state.SkipWithError("memory allocate error");
 
   for (auto _ : state) add_std(v1, v2, v3, n);
 
@@ -211,17 +306,29 @@ static void BM_add_std_double(benchmark::State& state) {
   if (v3 != nullptr) free(v3);
 }
 // NOTE: don't use align 1 or 2
-BENCHMARK(BM_add_std_double)->Arg(1)->Arg(2)->Arg(4)->Arg(8)->Arg(16)->Arg(32)->Arg(64);
+BENCHMARK(BM_add_std_double)
+    ->Arg(1)
+    ->Arg(2)
+    ->Arg(4)
+    ->Arg(8)
+    ->Arg(16)
+    ->Arg(32)
+    ->Arg(64);
 
 static void BM_mla_std(benchmark::State& state) {
   const int align = state.range(0);
   const int n     = 10000 * 4;
 
-  float* v1 = static_cast<float*>(::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  float* v2 = static_cast<float*>(::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  float* v3 = static_cast<float*>(::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  float* v4 = static_cast<float*>(::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  if (v1 == nullptr || v2 == nullptr || v3 == nullptr || v4 == nullptr) state.SkipWithError("memory allocate error");
+  float* v1 = static_cast<float*>(
+      ::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  float* v2 = static_cast<float*>(
+      ::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  float* v3 = static_cast<float*>(
+      ::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  float* v4 = static_cast<float*>(
+      ::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  if (v1 == nullptr || v2 == nullptr || v3 == nullptr || v4 == nullptr)
+    state.SkipWithError("memory allocate error");
 
   for (auto _ : state) mla_std(v1, v2, v3, v4, n);
 
@@ -231,17 +338,29 @@ static void BM_mla_std(benchmark::State& state) {
   if (v4 != nullptr) free(v4);
 }
 // NOTE: don't use align 1 or 2
-BENCHMARK(BM_mla_std)->Arg(1)->Arg(2)->Arg(4)->Arg(8)->Arg(16)->Arg(32)->Arg(64);
+BENCHMARK(BM_mla_std)
+    ->Arg(1)
+    ->Arg(2)
+    ->Arg(4)
+    ->Arg(8)
+    ->Arg(16)
+    ->Arg(32)
+    ->Arg(64);
 
 static void BM_mla_std4(benchmark::State& state) {
   const int align = state.range(0);
   const int n     = 10000 * 4;
 
-  float* v1 = static_cast<float*>(::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  float* v2 = static_cast<float*>(::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  float* v3 = static_cast<float*>(::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  float* v4 = static_cast<float*>(::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  if (v1 == nullptr || v2 == nullptr || v3 == nullptr || v4 == nullptr) state.SkipWithError("memory allocate error");
+  float* v1 = static_cast<float*>(
+      ::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  float* v2 = static_cast<float*>(
+      ::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  float* v3 = static_cast<float*>(
+      ::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  float* v4 = static_cast<float*>(
+      ::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  if (v1 == nullptr || v2 == nullptr || v3 == nullptr || v4 == nullptr)
+    state.SkipWithError("memory allocate error");
 
   for (auto _ : state) mla_std4(v1, v2, v3, v4, n);
 
@@ -251,18 +370,30 @@ static void BM_mla_std4(benchmark::State& state) {
   if (v4 != nullptr) free(v4);
 }
 // NOTE: don't use align 1 or 2
-BENCHMARK(BM_mla_std4)->Arg(1)->Arg(2)->Arg(4)->Arg(8)->Arg(16)->Arg(32)->Arg(64);
+BENCHMARK(BM_mla_std4)
+    ->Arg(1)
+    ->Arg(2)
+    ->Arg(4)
+    ->Arg(8)
+    ->Arg(16)
+    ->Arg(32)
+    ->Arg(64);
 
 static void BM_mla_neon_posix_mem_align(benchmark::State& state) {
   const int align = state.range(0);
   const int n     = 10000 * 4;
 
   float *v1 = nullptr, *v2 = nullptr, *v3 = nullptr, *v4 = nullptr;
-  int ret_v1 = (int)posix_memalign(reinterpret_cast<void**>(&v1), align, sizeof(float) * n);
-  int ret_v2 = (int)posix_memalign(reinterpret_cast<void**>(&v2), align, sizeof(float) * n);
-  int ret_v3 = (int)posix_memalign(reinterpret_cast<void**>(&v3), align, sizeof(float) * n);
-  int ret_v4 = (int)posix_memalign(reinterpret_cast<void**>(&v4), align, sizeof(float) * n);
-  if (ret_v1 || ret_v2 || ret_v3 || ret_v4) state.SkipWithError("memory allocate error");
+  int ret_v1 = (int)posix_memalign(reinterpret_cast<void**>(&v1), align,
+                                   sizeof(float) * n);
+  int ret_v2 = (int)posix_memalign(reinterpret_cast<void**>(&v2), align,
+                                   sizeof(float) * n);
+  int ret_v3 = (int)posix_memalign(reinterpret_cast<void**>(&v3), align,
+                                   sizeof(float) * n);
+  int ret_v4 = (int)posix_memalign(reinterpret_cast<void**>(&v4), align,
+                                   sizeof(float) * n);
+  if (ret_v1 || ret_v2 || ret_v3 || ret_v4)
+    state.SkipWithError("memory allocate error");
 
   for (auto _ : state) mla_neon(v1, v2, v3, v4, n);
 
@@ -272,17 +403,29 @@ static void BM_mla_neon_posix_mem_align(benchmark::State& state) {
   if (v4 != nullptr) free(v4);
 }
 // NOTE: don't use align 1 or 2
-BENCHMARK(BM_mla_neon_posix_mem_align)->Arg(1)->Arg(2)->Arg(4)->Arg(8)->Arg(16)->Arg(32)->Arg(64);
+BENCHMARK(BM_mla_neon_posix_mem_align)
+    ->Arg(1)
+    ->Arg(2)
+    ->Arg(4)
+    ->Arg(8)
+    ->Arg(16)
+    ->Arg(32)
+    ->Arg(64);
 
 static void BM_mla_neon_aligned_alloc(benchmark::State& state) {
   const int align = state.range(0);
   const int n     = 10000 * 4;
 
-  float* v1 = static_cast<float*>(::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  float* v2 = static_cast<float*>(::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  float* v3 = static_cast<float*>(::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  float* v4 = static_cast<float*>(::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
-  if (v1 == nullptr || v2 == nullptr || v3 == nullptr || v4 == nullptr) state.SkipWithError("memory allocate error");
+  float* v1 = static_cast<float*>(
+      ::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  float* v2 = static_cast<float*>(
+      ::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  float* v3 = static_cast<float*>(
+      ::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  float* v4 = static_cast<float*>(
+      ::aligned_alloc(align, (sizeof(float) * n + (align - 1)) & ~(align - 1)));
+  if (v1 == nullptr || v2 == nullptr || v3 == nullptr || v4 == nullptr)
+    state.SkipWithError("memory allocate error");
 
   for (auto _ : state) mla_neon(v1, v2, v3, v4, n);
 
@@ -292,17 +435,29 @@ static void BM_mla_neon_aligned_alloc(benchmark::State& state) {
   if (v4 != nullptr) free(v4);
 }
 // NOTE: don't use align 1 or 2
-BENCHMARK(BM_mla_neon_aligned_alloc)->Arg(1)->Arg(2)->Arg(4)->Arg(8)->Arg(16)->Arg(32)->Arg(64);
+BENCHMARK(BM_mla_neon_aligned_alloc)
+    ->Arg(1)
+    ->Arg(2)
+    ->Arg(4)
+    ->Arg(8)
+    ->Arg(16)
+    ->Arg(32)
+    ->Arg(64);
 
 static void BM_mla_std_double(benchmark::State& state) {
   const int align = state.range(0);
   const int n     = 10000 * 4;
 
-  double* v1 = static_cast<double*>(::aligned_alloc(align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
-  double* v2 = static_cast<double*>(::aligned_alloc(align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
-  double* v3 = static_cast<double*>(::aligned_alloc(align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
-  double* v4 = static_cast<double*>(::aligned_alloc(align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
-  if (v1 == nullptr || v2 == nullptr || v3 == nullptr || v4 == nullptr) state.SkipWithError("memory allocate error");
+  double* v1 = static_cast<double*>(::aligned_alloc(
+      align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
+  double* v2 = static_cast<double*>(::aligned_alloc(
+      align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
+  double* v3 = static_cast<double*>(::aligned_alloc(
+      align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
+  double* v4 = static_cast<double*>(::aligned_alloc(
+      align, (sizeof(double) * n + (align - 1)) & ~(align - 1)));
+  if (v1 == nullptr || v2 == nullptr || v3 == nullptr || v4 == nullptr)
+    state.SkipWithError("memory allocate error");
 
   for (auto _ : state) mla_std(v1, v2, v3, v4, n);
 
@@ -312,7 +467,14 @@ static void BM_mla_std_double(benchmark::State& state) {
   if (v4 != nullptr) free(v4);
 }
 // NOTE: don't use align 1 or 2
-BENCHMARK(BM_mla_std_double)->Arg(1)->Arg(2)->Arg(4)->Arg(8)->Arg(16)->Arg(32)->Arg(64);
+BENCHMARK(BM_mla_std_double)
+    ->Arg(1)
+    ->Arg(2)
+    ->Arg(4)
+    ->Arg(8)
+    ->Arg(16)
+    ->Arg(32)
+    ->Arg(64);
 
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
