@@ -122,6 +122,38 @@ TEST(arm_neon_test, vextq_s16_right) {
   EXPECT_EQ(dst_vec, ans_vec);
 }
 
+TEST(arm_neon_test, vext_index_1) {
+  std::vector<short> src_vec = {0, 1, 2,  3,  4,  5,  6,  7,
+                                8, 9, 10, 11, 12, 13, 14, 15};
+  std::vector<short> dst_vec(8);
+  std::vector<short> ans_vec = {1, 2, 3, 4, 5, 6, 7, 8};
+  auto src                   = src_vec.data();
+  auto dst                   = dst_vec.data();
+  auto ans                   = ans_vec.data();
+  int16x8_t src_lane_1       = vld1q_s16(src);
+  int16x8_t src_lane_2       = vld1q_s16(src + 8);
+  int16x8_t dst_lane         = vextq_s16(src_lane_1, src_lane_2, 1);
+  vst1q_s16(dst, dst_lane);
+
+  EXPECT_EQ(dst_vec, ans_vec);
+}
+
+TEST(arm_neon_test, vext_index_2) {
+  std::vector<short> src_vec = {0, 1, 2,  3,  4,  5,  6,  7,
+                                8, 9, 10, 11, 12, 13, 14, 15};
+  std::vector<short> dst_vec(8);
+  std::vector<short> ans_vec = {2, 3, 4, 5, 6, 7, 8, 9};
+  auto src                   = src_vec.data();
+  auto dst                   = dst_vec.data();
+  auto ans                   = ans_vec.data();
+  int16x8_t src_lane_1       = vld1q_s16(src);
+  int16x8_t src_lane_2       = vld1q_s16(src + 8);
+  int16x8_t dst_lane         = vextq_s16(src_lane_1, src_lane_2, 2);
+  vst1q_s16(dst, dst_lane);
+
+  EXPECT_EQ(dst_vec, ans_vec);
+}
+
 TEST(arm_neon_test, vext) {
   std::vector<short> src_vec = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
   std::vector<short> dst_vec(4);
