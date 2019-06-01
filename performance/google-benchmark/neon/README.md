@@ -11,6 +11,8 @@ g++ -std=c++11 -O3 image_edge_detection_main.cpp -lbenchmark -lpthread -lgtest -
 
 ## vget_low, vget_high
 * 128bitから64bitを取り出す
+  * メモリアドレス的にlow,highな方向
+  * little endianの場合には，直感と合うはず
 
 ```
 |    128 bit    |
@@ -54,7 +56,7 @@ note: use -flax-vector-conversions to permit conversions between vectors with di
 ```
 
 ## vextq
-* 同一のレーンを指定すれば，ベクトル要素のローテーションが可能となる(定数値のみのローテーション)
+* 同一のレーンを指定すれば，ベクトル要素のローテーションが可能となる(変数ではなく定数値のみのローテーション)
 
 ## result
 ### arm
@@ -248,6 +250,14 @@ BM_image_vertical_access_neon/64/0       9036 ns         9028 ns        77258
 BM_image_vertical_access_neon/64/2      10315 ns        10306 ns        68002
 BM_image_vertical_access_neon/70/0      11693 ns        11685 ns        59767
 BM_image_vertical_access_neon/70/2      10359 ns        10353 ns        67668
+```
+
+```
+---------------------------------------------------------
+Benchmark               Time             CPU   Iterations
+---------------------------------------------------------
+BM_vext/0           19011 ns        19009 ns        36809
+BM_vld1q_s16/0      26677 ns        26674 ns        26244
 ```
 
 ## FYI

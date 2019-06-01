@@ -223,48 +223,53 @@ TEST(arm_neon_test, vext) {
   }
 }
 
+/*
+  NOTE: memory layout(x軸の値がアドレスを示すため，srcの縦方向はすべて同じアドレス)
+ src
+ ||||||||
+  ||||||||
+   ||||||||
+    ||||||||
+     ||||||||
+              dst
+              ||||||||||||||||||||||||||||||||||||||||
+*/
 inline void BM_func_vld1q_s16(int16_t *src, int16_t *dst) {
   for (int i = 0; i < 5; i++) {
     int16x8_t src_lane = vld1q_s16(src + i);
     vst1_s16(dst, vget_low_s16(src_lane));
-    vst1_s16(dst + 4, vget_high_s16(src_lane));
-    dst += 8;
+    vst1_s16(dst + 4 * 5, vget_high_s16(src_lane));
+    dst += 4;
   }
 }
 
-// NOTE: さすがに，ローテーションの処理を行ったほうがわずかに高速(cacheに依存)
+// NOTE: 前後のレーンを利用することで，メモリアクセスの削減およびalignmentの調整が可能となる
 inline void BM_func_vext(int16_t *src, int16_t *dst) {
-  int16x8_t src_low_lane    = vld1q_s16(src);
-  int16x8_t &dst_low_lane_0 = src_low_lane;
-  int16x8_t dst_low_lane_1  = vextq_s16(src_low_lane, src_low_lane, 1);
-  int16x8_t dst_low_lane_2  = vextq_s16(src_low_lane, src_low_lane, 2);
-  int16x8_t dst_low_lane_3  = vextq_s16(src_low_lane, src_low_lane, 3);
-  int16x8_t dst_low_lane_4  = vextq_s16(src_low_lane, src_low_lane, 4);
+  int16x8_t src_lane_0 = vld1q_s16(src);
+  // NOTE: 本来よりも+4余計にアクセス可能である前提
+  int16x8_t src_lane_8 = vld1q_s16(src + 8);
+  int16x8_t src_lane_1 = vextq_s16(src_lane_0, src_lane_8, 1);
+  int16x8_t src_lane_2 = vextq_s16(src_lane_0, src_lane_8, 2);
+  int16x8_t src_lane_3 = vextq_s16(src_lane_0, src_lane_8, 3);
+  int16x8_t src_lane_4 = vextq_s16(src_lane_0, src_lane_8, 4);
 
-  vst1_s16(dst, vget_low_s16(dst_low_lane_0));
-  vst1_s16(dst + 4, vget_low_s16(dst_low_lane_1));
-  vst1_s16(dst + 8, vget_low_s16(dst_low_lane_2));
-  vst1_s16(dst + 12, vget_low_s16(dst_low_lane_3));
-  vst1_s16(dst + 16, vget_low_s16(dst_low_lane_4));
+  vst1_s16(dst + 0, vget_low_s16(src_lane_0));
+  vst1_s16(dst + 4, vget_low_s16(src_lane_1));
+  vst1_s16(dst + 8, vget_low_s16(src_lane_2));
+  vst1_s16(dst + 12, vget_low_s16(src_lane_3));
+  vst1_s16(dst + 16, vget_low_s16(src_lane_4));
 
-  int16x8_t src_high_lane    = vld1q_s16(src + 4);
-  int16x8_t &dst_high_lane_0 = src_high_lane;
-  int16x8_t dst_high_lane_1  = vextq_s16(src_high_lane, src_high_lane, 1);
-  int16x8_t dst_high_lane_2  = vextq_s16(src_high_lane, src_high_lane, 2);
-  int16x8_t dst_high_lane_3  = vextq_s16(src_high_lane, src_high_lane, 3);
-  int16x8_t dst_high_lane_4  = vextq_s16(src_high_lane, src_high_lane, 4);
-
-  vst1_s16(dst + 20, vget_low_s16(dst_high_lane_0));
-  vst1_s16(dst + 24, vget_low_s16(dst_high_lane_1));
-  vst1_s16(dst + 28, vget_low_s16(dst_high_lane_2));
-  vst1_s16(dst + 32, vget_low_s16(dst_high_lane_3));
-  vst1_s16(dst + 36, vget_low_s16(dst_high_lane_4));
+  vst1_s16(dst + 20, vget_high_s16(src_lane_0));
+  vst1_s16(dst + 24, vget_high_s16(src_lane_1));
+  vst1_s16(dst + 28, vget_high_s16(src_lane_2));
+  vst1_s16(dst + 32, vget_high_s16(src_lane_3));
+  vst1_s16(dst + 36, vget_high_s16(src_lane_4));
 }
 
 static void BM_vext(benchmark::State &state) {
   const int align  = 64;
   const int loop_n = 1000;
-  const int src_n  = 8 + 4;
+  const int src_n  = 8 + 4 + 4;  // NOTE: last +4 is for neon
   const int dst_n  = 4 * 5 * 2;
   int16_t *src     = static_cast<int16_t *>(aligned_alloc(
       align, (sizeof(int16_t) * src_n * loop_n + (align - 1)) & ~(align - 1)));
@@ -294,7 +299,7 @@ BENCHMARK(BM_vext)->Arg(0);
 static void BM_vld1q_s16(benchmark::State &state) {
   const int align  = 64;
   const int loop_n = 1000;
-  const int src_n  = 8 + 4;
+  const int src_n  = 8 + 4 + 4;  // NOTE: last +4 is for neon
   const int dst_n  = 4 * 5 * 2;
   int16_t *src     = static_cast<int16_t *>(aligned_alloc(
       align, (sizeof(int16_t) * src_n * loop_n + (align - 1)) & ~(align - 1)));
@@ -320,6 +325,25 @@ static void BM_vld1q_s16(benchmark::State &state) {
   if (dst != nullptr) free(dst);
 }
 BENCHMARK(BM_vld1q_s16)->Arg(0);
+
+TEST(arm_neon_test, vext_BM) {
+  const int src_n = 8 + 4 + 4;  // NOTE: last +4 is for neon
+  const int dst_n = 4 * 5 * 2;
+  std::vector<int16_t> src_vec(src_n);
+  std::vector<int16_t> neon_std_dst_vec(dst_n);
+  std::vector<int16_t> neon_vext_dst_vec(dst_n);
+  auto src           = src_vec.data();
+  auto neon_std_dst  = neon_std_dst_vec.data();
+  auto neon_vext_dst = neon_vext_dst_vec.data();
+  for (int i = 0; i < src_n; i++) {
+    src[i] = i;
+  }
+
+  BM_func_vld1q_s16(src, neon_std_dst);
+  BM_func_vext(src, neon_vext_dst);
+
+  EXPECT_EQ(neon_std_dst_vec, neon_vext_dst_vec);
+}
 #endif
 
 int main(int argc, char **argv) {
