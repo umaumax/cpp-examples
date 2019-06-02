@@ -1,3 +1,5 @@
+#include <iomanip>
+#include <sstream>
 #include <vector>
 
 #include <benchmark/benchmark.h>
@@ -6,6 +8,29 @@
 #ifdef __ARM_NEON
 #include <arm_neon.h>
 #endif
+
+// ---- util funcsions ---- start ----
+
+uint64_t popcnt(uint64_t n) {
+  uint64_t c = 0;
+  c          = (n & 0x5555555555555555) + ((n >> 1) & 0x5555555555555555);
+  c          = (c & 0x3333333333333333) + ((c >> 2) & 0x3333333333333333);
+  c          = (c & 0x0f0f0f0f0f0f0f0f) + ((c >> 4) & 0x0f0f0f0f0f0f0f0f);
+  c          = (c & 0x00ff00ff00ff00ff) + ((c >> 8) & 0x00ff00ff00ff00ff);
+  c          = (c & 0x0000ffff0000ffff) + ((c >> 16) & 0x0000ffff0000ffff);
+  c          = (c & 0x00000000ffffffff) + ((c >> 32) & 0x00000000ffffffff);
+  return (c);
+}
+
+template <class T>
+T *aligned_alloc_wrapper(std::size_t n, std::size_t align) {
+  assert(popcnt(align) == 1 ||
+         !(std::cerr << "align must be 2^n: align=" << align << std::endl));
+  return static_cast<T *>(
+      aligned_alloc(align, (sizeof(T) * n + (align - 1)) & ~(align - 1)));
+}
+
+// ---- util funcsions ---- end ----
 
 void image_edge_access(uint8_t *src, int16_t *dst, int width, int height) {
   // NOTE: src.width  - 1 =  dst.width
@@ -51,35 +76,6 @@ void image_edge_access(uint8_t *src, int16_t *dst, int width, int height) {
     p_d += margin;
   }
 }
-
-static void BM_image_edge_access(benchmark::State &state) {
-  const int align = 16;
-
-  const int width  = state.range(0);
-  const int height = state.range(0);
-
-  const int n = width * height;
-
-  uint8_t *src = static_cast<uint8_t *>(
-      aligned_alloc(align, (sizeof(uint8_t) * n + (align - 1)) & ~(align - 1)));
-  int16_t *dst = static_cast<int16_t *>(aligned_alloc(
-      align, (sizeof(int16_t) * 3 * n + (align - 1)) & ~(align - 1)));
-  if (src == nullptr || dst == nullptr)
-    state.SkipWithError("memory allocate error");
-
-  for (int i = 0; i < n; i++) {
-    uint8_t val = i * i + i % 10;
-    src[i]      = val;
-  }
-
-  for (auto _ : state) {
-    image_edge_access(src, dst, width, height);
-  }
-
-  if (src != nullptr) free(src);
-  if (dst != nullptr) free(dst);
-}
-BENCHMARK(BM_image_edge_access)->Arg(48)->Arg(50)->Arg(480)->Arg(960);
 
 #ifdef __ARM_NEON
 void image_edge_access_neon(uint8_t *src, int16_t *dst, int width, int height) {
@@ -186,32 +182,58 @@ void image_edge_access_neon(uint8_t *src, int16_t *dst, int width, int height) {
   }
 }
 
-static void BM_image_edge_access_neon(benchmark::State &state) {
-  const int align  = 64;
-  const int width  = state.range(0);
-  const int height = state.range(0);
-  const int n      = width * height;
+#define DECL_BM_image_edge_access(name, func)                          \
+  static void BM_image_edge_access_##name(benchmark::State &state) {   \
+    const int align   = 64;                                            \
+    const int width   = state.range(0);                                \
+    const int height  = state.range(0);                                \
+    const int padding = state.range(1);                                \
+    const int n       = width * height;                                \
+                                                                       \
+    auto src = aligned_alloc_wrapper<uint8_t>(n + padding, align);     \
+    auto dst = aligned_alloc_wrapper<int16_t>(3 * n + padding, align); \
+    if (src == nullptr || dst == nullptr)                              \
+      state.SkipWithError("memory allocate error");                    \
+    src += padding;                                                    \
+    dst += padding;                                                    \
+                                                                       \
+    for (int i = 0; i < n; i++) {                                      \
+      uint8_t val = i * i + i % 10;                                    \
+      src[i]      = val;                                               \
+    }                                                                  \
+                                                                       \
+    for (auto _ : state) {                                             \
+      func(src, dst, width, height);                                   \
+    }                                                                  \
+                                                                       \
+    src -= padding;                                                    \
+    dst -= padding;                                                    \
+    if (src != nullptr) free(src);                                     \
+    if (dst != nullptr) free(dst);                                     \
+  }                                                                    \
+  const int BM_image_edge_access_##name##_size = 64;                   \
+  BENCHMARK(BM_image_edge_access_##name)                               \
+      ->Args({BM_image_edge_access_##name##_size, 0})                  \
+      ->Args({BM_image_edge_access_##name##_size, 0})                  \
+      ->Args({BM_image_edge_access_##name##_size, 1})                  \
+      ->Args({BM_image_edge_access_##name##_size, 2})                  \
+      ->Args({BM_image_edge_access_##name##_size, 3})                  \
+      ->Args({BM_image_edge_access_##name##_size, 4})                  \
+      ->Args({BM_image_edge_access_##name##_size, 5})                  \
+      ->Args({BM_image_edge_access_##name##_size, 6})                  \
+      ->Args({BM_image_edge_access_##name##_size, 7})                  \
+      ->Args({BM_image_edge_access_##name##_size, 8})                  \
+      ->Args({BM_image_edge_access_##name##_size, 9})                  \
+      ->Args({BM_image_edge_access_##name##_size, 10})                 \
+      ->Args({BM_image_edge_access_##name##_size, 11})                 \
+      ->Args({BM_image_edge_access_##name##_size, 12})                 \
+      ->Args({BM_image_edge_access_##name##_size, 13})                 \
+      ->Args({BM_image_edge_access_##name##_size, 14})                 \
+      ->Args({BM_image_edge_access_##name##_size, 15})                 \
+      ->Args({BM_image_edge_access_##name##_size, 16});
 
-  uint8_t *src = static_cast<uint8_t *>(
-      aligned_alloc(align, (sizeof(uint8_t) * n + (align - 1)) & ~(align - 1)));
-  int16_t *dst = static_cast<int16_t *>(aligned_alloc(
-      align, (sizeof(int16_t) * 3 * n + (align - 1)) & ~(align - 1)));
-  if (src == nullptr || dst == nullptr)
-    state.SkipWithError("memory allocate error");
-
-  for (int i = 0; i < n; i++) {
-    uint8_t val = i * i + i % 10;
-    src[i]      = val;
-  }
-
-  for (auto _ : state) {
-    image_edge_access_neon(src, dst, width, height);
-  }
-
-  if (src != nullptr) free(src);
-  if (dst != nullptr) free(dst);
-}
-BENCHMARK(BM_image_edge_access_neon)->Arg(48)->Arg(50)->Arg(480)->Arg(960);
+DECL_BM_image_edge_access(std, image_edge_access);
+DECL_BM_image_edge_access(neon, image_edge_access_neon);
 
 TEST(std_and_neon_test, image_edge_access) {
   const int align  = 64;
@@ -219,14 +241,10 @@ TEST(std_and_neon_test, image_edge_access) {
   const int height = 32;
   const int n      = width * height;
 
-  uint8_t *src_std = static_cast<uint8_t *>(
-      aligned_alloc(align, (sizeof(uint8_t) * n + (align - 1)) & ~(align - 1)));
-  int16_t *dst_std  = static_cast<int16_t *>(aligned_alloc(
-      align, (sizeof(int16_t) * 3 * n + (align - 1)) & ~(align - 1)));
-  uint8_t *src_neon = static_cast<uint8_t *>(
-      aligned_alloc(align, (sizeof(uint8_t) * n + (align - 1)) & ~(align - 1)));
-  int16_t *dst_neon = static_cast<int16_t *>(aligned_alloc(
-      align, (sizeof(int16_t) * 3 * n + (align - 1)) & ~(align - 1)));
+  auto src_std  = aligned_alloc_wrapper<uint8_t>(n, align);
+  auto dst_std  = aligned_alloc_wrapper<int16_t>(3 * n, align);
+  auto src_neon = aligned_alloc_wrapper<uint8_t>(n, align);
+  auto dst_neon = aligned_alloc_wrapper<int16_t>(3 * n, align);
 
   for (int i = 0; i < n; i++) {
     uint8_t val = i * i + i % 10;
@@ -246,18 +264,24 @@ TEST(std_and_neon_test, image_edge_access) {
     EXPECT_EQ(dst_std[i], dst_neon[i]);
   }
   // NOTE: dump
+  bool fail_flag = false;
+  std::stringstream ss;
   for (int k = 0; k < 3; k++) {
     for (int j = 0; j < height; j++) {
       for (int i = 0; i < width; i++) {
         int index = k * width * height + j * width + i;
         if (dst_std[index] != dst_neon[index]) {
-          std::printf("%4d(%d)", dst_std[index], dst_neon[index]);
+          ss << std::setw(4) << dst_std[index] << "(" << dst_neon[index] << ")";
+          fail_flag = true;
         }
-        std::printf(",");
+        ss << ",";
       }
-      std::printf("\n");
+      ss << std::endl;
     }
-    std::printf("\n");
+    ss << std::endl;
+  }
+  if (fail_flag) {
+    std::cerr << ss.str();
   }
 
   if (src_std != nullptr) free(src_std);
