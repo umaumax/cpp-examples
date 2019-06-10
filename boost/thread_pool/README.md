@@ -2,7 +2,10 @@
 
 ## how to build
 ```
+# Max OS X
 g++ -std=c++11 main.cpp -lboost_thread-mt
+# Ubuntu 16.04
+g++ -std=c++11 main.cpp -lpthread -lboost_thread -lboost_system
 ```
 
 ## FYI
