@@ -7,6 +7,8 @@ g++ -std=c++11 -O3 test_main.cpp -lgtest -lbenchmark -mfpu=neon -march=native
 
 g++ -std=c++11 -O3 image_alignment_main.cpp -lbenchmark -lpthread -lgtest -mfpu=neon -march=native -Wno-psabi
 g++ -std=c++11 -O3 image_edge_detection_main.cpp -lbenchmark -lpthread -lgtest -mfpu=neon -march=native -Wno-psabi
+
+g++ -std=c++11 -O3 fill.cpp -lbenchmark -lgtest -march=native
 ```
 
 ## vget_low, vget_high
@@ -758,6 +760,9 @@ Benchmark               Time             CPU   Iterations
 BM_vext/0           19011 ns        19009 ns        36809
 BM_vld1q_s16/0      26677 ns        26674 ns        26244
 ```
+
+## fill
+* [c\+\+ \- Using SSE for vector initialzation \- Stack Overflow]( https://stackoverflow.com/questions/17710813/using-sse-for-vector-initialzation )
 
 ## FYI
 * [google/benchmark: A microbenchmark support library]( https://github.com/google/benchmark#passing-arguments )
