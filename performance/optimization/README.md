@@ -14,6 +14,8 @@
 * その場合，同一のアドレスに命令があるわけではないので，命令のデコードのキャッシュは働かなくなる
 * 別のcppファイルにある時点でその関数の中身は見えない前提となるため，最適化の妨げになってしまう
 
+* `-flto` option: [コンパイラによるリンク時最適化\(Link Time Optimization\) \- Qiita]( https://qiita.com/kaityo256/items/a822fc462a4de6ddd8e7 )
+
 ```
 $ g++ -std=c++11 -O3 -g main.cpp f.cpp -DSAME_FILE
 $ time ./a.out
@@ -23,4 +25,7 @@ $ time ./a.out
 $ g++ -std=c++11 -O3 -g main.cpp f.cpp
 $ time ./a.out
 ^C
+
+$ g++ -std=c++11 -O3 -g main.cpp f.cpp -flto
+0.000000
 ```
