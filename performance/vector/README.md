@@ -14,3 +14,8 @@ calc elapsed time:   1812451[us]
 ```
 g++ -std=c++11 -O3 vector_vs_array.cpp
 ```
+
+* static_vector
+  * 実は固定長で運用可能な`std::vector`のコードを簡易的に置き換えることはできないかどうかという試み
+  * structのfieldのこの型を他の関数の呼び出しで利用している場合には，単純に置換しただけでは不十分な挙動となる
+  * [【C\+\+】既存のクラスを拡張する方法【拡張メソッド／カテゴリ】 \| MaryCore]( https://marycore.jp/prog/cpp/class-extension-methods/ )
