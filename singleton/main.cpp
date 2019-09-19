@@ -40,7 +40,6 @@ int main(int argc, char* argv[]) {
   {
     Hoge& hoge = Singleton<Hoge>::GetInstance();
     hoge.Print();
-    hoge.SetVal(456);
   }
   return 0;
 }
