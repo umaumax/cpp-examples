@@ -11,6 +11,21 @@ g++ -std=c++11 -O3 image_edge_detection_main.cpp -lbenchmark -lpthread -lgtest -
 g++ -std=c++11 -O3 fill.cpp -lbenchmark -lgtest -march=native
 ```
 
+----
+
+## 定数のlane
+* [c \- How to initialize const float32x4x4\_t \(ARM NEON intrinsic, GCC\)? \- Stack Overflow]( https://stackoverflow.com/questions/2749848/how-to-initialize-const-float32x4x4-t-arm-neon-intrinsic-gcc )
+
+```
+const int16x8_t const_lane = {0, 1, 2, 3, 4, 5, 6, 7};
+const int16x8_t const_lanes[4] = {
+    {-15, -14, -13, -12, -11, -10, -9, -8},
+    {-7, -6, -5, -4, -3, -2, -1, 0},
+    {0, 1, 2, 3, 4, 5, 6, 7},
+    {8, 9, 10, 11, 12, 13, 14, 15},
+};
+```
+
 ## vget_low, vget_high
 * 128bitから64bitを取り出す
   * メモリアドレス的にlow,highな方向
@@ -39,6 +54,15 @@ g++ -std=c++11 -O3 fill.cpp -lbenchmark -lgtest -march=native
 
 「符号なしベクタの減算について」の項目を参照
 
+仮に，uint8_t * int8_tを行いたい場合には、
+* uint8_t->uint16_t->int16_t
+* int8_t->int16_t
+に変換する必要性あり
+
+uint8_t->uint16_tはvaddl_u8()利用以外に方法は?
+
+しかし，上記のリンクに従えば，符号付き・符号なしの加減算はbit単位で見れば同じ処理のため，ビット拡張後に型変換すればつじつまがあう
+
 ### unsignedの型同士の減算(実は絶対値で十分な場合)
 `abd`を利用すれば良い
 
@@ -59,6 +83,8 @@ note: use -flax-vector-conversions to permit conversions between vectors with di
 
 ## vextq
 * 同一のレーンを指定すれば，ベクトル要素のローテーションが可能となる(変数ではなく定数値のみのローテーション)
+
+----
 
 ## result
 ### arm
