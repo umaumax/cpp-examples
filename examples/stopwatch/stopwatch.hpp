@@ -132,23 +132,23 @@ class StopWatch {
 
   void SetPrefixMessage(const std::string& message) { message_ = message; }
   // NOTE: for control print key order
-  void Register(const std::string& key) { getMonoStopWatch(key, false); };
-  void Clear(const std::string& key) { getMonoStopWatch(key, false).Clear(); };
+  void Register(const std::string& key) { GetMonoStopWatch(key, false); };
+  void Clear(const std::string& key) { GetMonoStopWatch(key, false).Clear(); };
   void Start(const std::string& key) {
-    auto&& mono_stop_watch = getMonoStopWatch(key, false);
+    auto&& mono_stop_watch = GetMonoStopWatch(key, false);
     mono_stop_watch.Start();
     mono_stop_watch.SetPrefix(indent_manager_.String());
 
     indent_manager_.Push();
   };
   void Stop(const std::string& key) {
-    auto&& mono_stop_watch = getMonoStopWatch(key);
+    auto&& mono_stop_watch = GetMonoStopWatch(key);
     mono_stop_watch.Stop();
 
     indent_manager_.Pop();
   };
   void Toggle(const std::string& key) {
-    auto&& mono_stop_watch = getMonoStopWatch(key, false);
+    auto&& mono_stop_watch = GetMonoStopWatch(key, false);
     bool started           = mono_stop_watch.Toggle();
     if (started) {
       mono_stop_watch.SetPrefix(indent_manager_.String());
@@ -159,7 +159,7 @@ class StopWatch {
   };
   void Print(const std::string& key) {
     print_flag_ = true;
-    getMonoStopWatch(key).Print(message_ + ":" + key);
+    GetMonoStopWatch(key).Print(message_ + ":" + key);
   };
   void PrintAll() {
     print_flag_ = true;
@@ -170,7 +170,7 @@ class StopWatch {
   void SetDelayPrintFlag() { delay_print_flag_ = true; }
 
  private:
-  MonoStopWatch& getMonoStopWatch(const std::string& key,
+  MonoStopWatch& GetMonoStopWatch(const std::string& key,
                                   bool assert_flag = true) {
     auto&& it = mono_stop_watch_map_.find(key);
     if (it == mono_stop_watch_map_.end()) {
