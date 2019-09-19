@@ -4,22 +4,66 @@
 #include <cassert>
 #include <chrono>
 #include <cstdio>
+#include <iomanip>
 #include <limits>
 #include <map>
+#include <sstream>
 #include <string>
+#include <vector>
+
+namespace internal {
+template <class T>
+class Singleton {
+ public:
+  static inline T& GetInstance() {
+    static T instance;
+    return instance;
+  }
+
+ private:
+  Singleton()  = default;
+  ~Singleton() = default;
+
+  Singleton(const Singleton&) = delete;
+  Singleton& operator=(const Singleton&) = delete;
+  Singleton(Singleton&&)                 = delete;
+  Singleton& operator=(Singleton&&) = delete;
+};
+
+class IndentManager {
+ public:
+  IndentManager() : level_(0) {}
+
+  void Push() { level_++; }
+  // NOTE: level_ must be >= 0
+  void Pop() { level_--; }
+  std::string String() {
+    std::stringstream ss;
+    const std::string head = "|";
+    ss << std::setfill(' ') << std::setw(level_ + head.size()) << head;
+    return ss.str();
+  }
+  int GetLevel() { return level_; }
+
+ private:
+  int level_;
+};
+}  // namespace internal
 
 class MonoStopWatch {
   using time_type = std::chrono::system_clock::time_point;
 
  public:
-  MonoStopWatch() { Clear(); }
+  MonoStopWatch() : prefix_("") { Clear(); }
+
   void Start() { start_time_ = now(); }
-  void Toggle() {
+  bool Toggle() {
     if (start_time_.time_since_epoch().count() == 0) {
       Start();
-    } else {
-      Stop();
+      return true;
     }
+    Stop();
+    return false;
   }
   void Stop() {
     end_time_ = now();
@@ -33,10 +77,15 @@ class MonoStopWatch {
            1000.0;
   }
   void Print(const std::string& message) {
+    std::stringstream ss;
+    ss << std::left << std::setfill('-') << std::setw(8) << prefix_
+       << std::right << std::setfill('-') << std::setw(44) << message;
+    std::string prefix = ss.str();
+
     std::fprintf(stderr,
-                 "%48s (ms) [%10llu] sum:%11.4lf, ave:%11.4lf, "
-                 "(min,max)=(%11.4lf,%11.4lf), now:%11.4lf\n",
-                 message.c_str(), callee_cnt_, sum_elapsed_time_,
+                 "%s (ms) [%10llu] sum:%11.3lf, ave:%11.3lf, "
+                 "(min,max)=(%11.3lf,%11.3lf), now:%11.3lf\n",
+                 prefix.c_str(), callee_cnt_, sum_elapsed_time_,
                  ave_elapsed_time_, min_elapsed_time_, max_elapsed_time_,
                  pre_elapsed_time_);
   };
@@ -48,6 +97,7 @@ class MonoStopWatch {
     ave_elapsed_time_ = 0.0;
     pre_elapsed_time_ = 0.0;
   };
+  void SetPrefix(const std::string& prefix) { prefix_ = prefix; }
 
  private:
   time_type now() { return std::chrono::system_clock::now(); }
@@ -69,37 +119,74 @@ class MonoStopWatch {
   double pre_elapsed_time_;
   time_type start_time_;
   time_type end_time_;
+  std::string prefix_;
 };
 class StopWatch {
  public:
   StopWatch() {}
+  ~StopWatch() {
+    if (delay_print_flag_ || !print_flag_) {
+      PrintAll();
+    }
+  }
+
   void SetPrefixMessage(const std::string& message) { message_ = message; }
+  // NOTE: for control print key order
+  void Register(const std::string& key) { getMonoStopWatch(key, false); };
   void Clear(const std::string& key) { getMonoStopWatch(key, false).Clear(); };
-  void Start(const std::string& key) { getMonoStopWatch(key, false).Start(); };
-  void Stop(const std::string& key) { getMonoStopWatch(key).Stop(); };
+  void Start(const std::string& key) {
+    auto&& mono_stop_watch = getMonoStopWatch(key, false);
+    mono_stop_watch.Start();
+    mono_stop_watch.SetPrefix(indent_manager_.String());
+
+    indent_manager_.Push();
+  };
+  void Stop(const std::string& key) {
+    auto&& mono_stop_watch = getMonoStopWatch(key);
+    mono_stop_watch.Stop();
+
+    indent_manager_.Pop();
+  };
   void Toggle(const std::string& key) {
-    getMonoStopWatch(key, false).Toggle();
+    auto&& mono_stop_watch = getMonoStopWatch(key, false);
+    bool started           = mono_stop_watch.Toggle();
+    if (started) {
+      mono_stop_watch.SetPrefix(indent_manager_.String());
+      indent_manager_.Push();
+    } else {
+      indent_manager_.Pop();
+    }
   };
   void Print(const std::string& key) {
+    print_flag_ = true;
     getMonoStopWatch(key).Print(message_ + ":" + key);
   };
   void PrintAll() {
-    for (auto&& x : mono_stop_watch_map_) {
-      Print(x.first);
+    print_flag_ = true;
+    for (auto&& key : keys_) {
+      Print(key);
     }
   }
+  void SetDelayPrintFlag() { delay_print_flag_ = true; }
 
  private:
   MonoStopWatch& getMonoStopWatch(const std::string& key,
                                   bool assert_flag = true) {
-    if (assert_flag) {
-      auto&& it = mono_stop_watch_map_.find(key);
-      assert((it != mono_stop_watch_map_.end()) && "no exist key found");
+    auto&& it = mono_stop_watch_map_.find(key);
+    if (it == mono_stop_watch_map_.end()) {
+      keys_.emplace_back(key);
+      assert(!assert_flag && "no exist key found");
     }
     return mono_stop_watch_map_[key];
   }
   std::string message_ = "#";
   std::map<std::string, MonoStopWatch> mono_stop_watch_map_;
+  std::vector<std::string> keys_;
+  bool print_flag_       = false;
+  bool delay_print_flag_ = false;
+
+  internal::IndentManager& indent_manager_ =
+      internal::Singleton<internal::IndentManager>::GetInstance();
 };
 
 #endif  // STOPWATCH_HPP_INCLUDED__
