@@ -68,22 +68,22 @@ void f(int n) {
   class StopWatch {
    public:
     StopWatch() {}
-    void SetPrefixMessage(std::string message) { message_ = message; }
-    void Clear(std::string key) { getMonoStopWatch(key, false).Clear(); };
-    void Start(std::string key) { getMonoStopWatch(key, false).Start(); };
-    void Stop(std::string key) { getMonoStopWatch(key).Stop(); };
-    void Toggle(std::string key) { getMonoStopWatch(key, false).Toggle(); };
-    void Print(std::string key) { getMonoStopWatch(key).Print(message_ + ":" + key); };
+    void SetPrefixMessage(const std::string& message) { message_ = message; }
+    void Clear(const std::string& key) { getMonoStopWatch(key, false).Clear(); };
+    void Start(const std::string& key) { getMonoStopWatch(key, false).Start(); };
+    void Stop(const std::string& key) { getMonoStopWatch(key).Stop(); };
+    void Toggle(const std::string& key) { getMonoStopWatch(key, false).Toggle(); };
+    void Print(const std::string& key) { getMonoStopWatch(key).Print(message_ + ":" + key); };
     void PrintAll() {
-      for (auto& x : mono_stop_watch_map_) {
+      for (auto&& x : mono_stop_watch_map_) {
         Print(x.first);
       }
     }
 
    private:
-    MonoStopWatch& getMonoStopWatch(std::string key, bool assert_flag = true) {
+    MonoStopWatch& getMonoStopWatch(const std::string& key, bool assert_flag = true) {
       if (assert_flag) {
-        auto it = mono_stop_watch_map_.find(key);
+        auto&& it = mono_stop_watch_map_.find(key);
         assert((it != mono_stop_watch_map_.end()) && "no exist key found");
       }
       return mono_stop_watch_map_[key];
