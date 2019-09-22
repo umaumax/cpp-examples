@@ -12,6 +12,124 @@
 #include <benchmark/benchmark.h>
 #include <gtest/gtest.h>
 
+#ifdef __APPLE__
+void* aligned_alloc(std::size_t align, std::size_t n) {
+  void* p = nullptr;
+  int ret = (int)posix_memalign(&p, align, n);
+  (void)ret;
+  //   assert((ret == 0) || !std::fprintf(stderr, "%s:%d posix_memalign failed (align: %zu, size:%zu)\n", __FILE__, __LINE__, align, n));
+  return p;
+}
+#endif
+
+// FYI: [Need a fast random generator for c\+\+ \- Stack Overflow]( https://stackoverflow.com/questions/1640258/need-a-fast-random-generator-for-c )
+unsigned long xorshf96(void) {  //period 2^96-1
+  static unsigned long x = 123456789, y = 362436069, z = 521288629;
+  x ^= x << 16;
+  x ^= x >> 5;
+  x ^= x << 1;
+
+  unsigned long t;
+  t = x;
+  x = y;
+  y = z;
+  z = t ^ x ^ y;
+  return z;
+}
+
+#define DECL_BM_random_memory_read(type)                                     \
+  static void BM_random_memory_read_##type(benchmark::State& state) {        \
+    std::size_t n          = 10240;                                          \
+    std::size_t size       = 512 * 1024 * 1024;                              \
+    std::size_t max_offset = size / sizeof(type);                            \
+    int sum                = 0;                                              \
+    uint8_t* src           = new uint8_t[size];                              \
+    type* p                = (type*)src;                                     \
+    int offset             = 0;                                              \
+    while (state.KeepRunning()) {                                            \
+      for (int i = 0; i < n; i++) {                                          \
+        sum += *(type*)(p + offset);                                         \
+        offset += xorshf96();                                                \
+        offset %= max_offset;                                                \
+      }                                                                      \
+    }                                                                        \
+    delete[] src;                                                            \
+                                                                             \
+    volatile int dummy = sum;                                                \
+    dummy;                                                                   \
+    state.SetLabel(std::string(#type) + "(" + std::to_string(sizeof(type)) + \
+                   "B)");                                                    \
+  }                                                                          \
+  BENCHMARK(BM_random_memory_read_##type)->Arg(0);
+DECL_BM_random_memory_read(int8_t);
+DECL_BM_random_memory_read(int16_t);
+DECL_BM_random_memory_read(int32_t);
+DECL_BM_random_memory_read(int64_t);
+
+struct int24_t {
+  int16_t v0;
+  int8_t v1;
+  int24_t& operator=(int rhs) {
+    v0 += rhs;
+    return *this;
+  }
+};
+struct int40_t {
+  int32_t v0;
+  int8_t v1;
+  int40_t& operator=(int rhs) {
+    v0 += rhs;
+    return *this;
+  }
+};
+struct int48_t {
+  int32_t v0;
+  int16_t v1;
+  int48_t& operator=(int rhs) {
+    v0 += rhs;
+    return *this;
+  }
+};
+#define DECL_BM_random_memory_write(type)                                                          \
+  static void BM_random_memory_write_##type(benchmark::State& state) {                             \
+    std::size_t n          = 1024;                                                                 \
+    std::size_t size       = 1 * 1024 * 1024 * sizeof(type);                                       \
+    std::size_t max_offset = size / sizeof(type);                                                  \
+    const int align        = 64;                                                                   \
+    uint8_t* src           = static_cast<uint8_t*>(aligned_alloc(                                  \
+        align, (sizeof(uint8_t) * (size) + (align - 1)) & ~(align - 1)));                \
+    type* p                = (type*)src;                                                           \
+    int offset             = 0;                                                                    \
+    while (state.KeepRunning()) {                                                                  \
+      for (int i = 0; i < n; i++) {                                                                \
+        *(p + offset) = i;                                                                         \
+        offset += xorshf96();                                                                      \
+        offset %= max_offset;                                                                      \
+      }                                                                                            \
+    }                                                                                              \
+    volatile int dummy = *(int*)p;                                                                 \
+    dummy;                                                                                         \
+    /* NOTE: このdelete/freeのあるなしでcacheへのhitの具合が劇的に変化する */ \
+    free(src);                                                                                     \
+    state.SetLabel(std::string(#type) + "(" + std::to_string(sizeof(type)) +                       \
+                   "B)");                                                                          \
+  }                                                                                                \
+  BENCHMARK(BM_random_memory_write_##type)->Arg(0);
+
+// TODO: alignmentの調整のあるなしで比較したい
+// NOTE: alignmentを64としている場合には，int8,16,32,64,float,doubleではalignmentをまたぐことはない
+// NOTE: 型に関係なく固定数のメモリ領域を確保しているので，ランダムライトが行われる際に効率の良い1要素あたりのサイズのベンチマークとなる(あくまで，writeのみ)
+// NOTE: sort処理の速度も変化するのでは?
+DECL_BM_random_memory_write(int8_t);
+DECL_BM_random_memory_write(int16_t);
+DECL_BM_random_memory_write(int24_t);
+DECL_BM_random_memory_write(int32_t);
+DECL_BM_random_memory_write(int40_t);
+DECL_BM_random_memory_write(int48_t);
+DECL_BM_random_memory_write(int64_t);
+DECL_BM_random_memory_write(float);
+DECL_BM_random_memory_write(double);
+
 #define DECL_BM_image_grid_access_const_image_n (1024)
 #define DECL_BM_image_grid_access_const_n(const_type, n)                        \
   static void BM_image_grid_access_##n##_const_##const_type(                    \
@@ -69,7 +187,7 @@ DECL_BM_image_grid_access_const_n(size_t, 128);
 DECL_BM_image_grid_access_const_n(size_t, 256);
 DECL_BM_image_grid_access_const_n(size_t, 512);
 DECL_BM_image_grid_access_const_n(size_t, 1024);
-//
+
 static void BM_image_grid_access(benchmark::State& state, int x_grid_size,
                                  int y_grid_size) {
   std::size_t width  = state.range(0);
