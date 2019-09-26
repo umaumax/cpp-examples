@@ -1,5 +1,20 @@
 # float test
 
+## 計算順序
+* IEEE754(IEEE Standard for Floating-Point Arithmetic)
+  * 交換則は成り立つ: `a + b = b + a`, `ab = ba`
+  * 結合則は必ずしも成り立たない: `a + (b + c) = (a + b) + c`, `a(bc) = (ab)c`
+
+* [FLP01\-C\. 浮動小数点式の演算の順序に注意する]( https://www.jpcert.or.jp/sc-rules/c-flp01-c.html )
+* [本の虫: なんでGCCはa\*a\*a\*a\*a\*a を \(a\*a\*a\)\*\(a\*a\*a\) に最適化できないの？っと]( https://cpplover.blogspot.com/2014/03/gccaaaaaa-aaaaaa.html )
+* [浮動小数点数では結合則が成り立たない \- fortran66のブログ]( http://fortran66.hatenablog.com/entry/2017/05/20/001554 )
+* [浮動小数点数で結合則が成り立たない簡単な例 \- fortran66のブログ]( http://fortran66.hatenablog.com/entry/2017/07/04/015218 )
+* [第3章 浮動小数点数と丸め誤差 chap03\.pdf]( https://na-inet.jp/nasoft/chap03.pdf )
+* [インテル® コンパイラーの浮動小数点演算における結果の一貫性]( https://www.isus.jp/wp-content/uploads/pdf/FP_Consistency_070816.pdf )
+* [opengl:fpu\_vfp \[HYPERでんち\]]( https://dench.flatlib.jp/opengl/fpu_vfp )
+
+----
+
 [FE\_DIVBYZERO, FE\_INEXACT, FE\_INVALID, FE\_OVERFLOW, FE\_UNDERFLOW, FE\_ALL\_EXCEPT \- cppreference\.com]( https://ja.cppreference.com/w/cpp/numeric/fenv/FE_exceptions )
 
 ## NOTE
