@@ -9,6 +9,21 @@
       * その場合には，ある程度丸めて，`std::string`として回避可能
         * e.g. `std::setprecision(5)`程度ならば，一致した(演算依存)
 
+## WARN
+* `std:hash`や`boost::hash`の結果は`std:size_t`であり，32bitと64bitのマシン環境で結果が異なってしまうことに注意
+  * [c\+\+ \- Get 32\-bit hash value from boost::hash \- Stack Overflow]( https://stackoverflow.com/questions/17426493/get-32-bit-hash-value-from-boosthash )
+  * そのため，`boost`の`md5`や`sha1`がおすすめ(これらのは`-I`や`-l`を追加せずとも使用可能)
+
+## hash list
+[hashアルゴリズムとハッシュ値の長さ一覧 \- Qiita]( https://qiita.com/KEINOS/items/c92268386d265042ea16 )
+
+| algo | length |
+|------|--------|
+| md5  | 16B    |
+| sha1 | 20B    |
+
+----
+
 ## how to build
 ```
 g++ -std=c++11 main.cpp -lgtest
