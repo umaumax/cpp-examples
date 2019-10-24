@@ -6,6 +6,12 @@
 brew install lcov
 ```
 
+## NOTE
+* `.gcno`: buildときに生成
+* `.gcda`: 実行時に生成
+* `.info`: `lcov`で生成
+* `.gcov`: `gcov`で生成
+
 ## how to run
 1. `-O0`,`-g`,`--coverage`付きのオプションでビルド
 2. __実行ファイルを実行__
@@ -58,6 +64,33 @@ main.cpp        |70.0%     20| 100%     2|    -      0
 ======================================================
           Total:|70.1%    134|78.2%    55|    -      0
 ```
+
+## gcov
+```
+$ gcov main
+# or gcov main.cpp
+# or gcov main.gcno
+# gcov main.cpp
+$ ls.gcov
+__locale.gcov
+__string.gcov
+ios.gcov
+iterator.gcov
+locale.gcov
+main.cpp.gcov
+memory.gcov
+ostream.gcov
+streambuf.gcov
+string.gcov
+type_traits.gcov
+```
+
+```
+gcov -f main.cpp | ./gcov_filter.py /dev/stdin | c++filt
+```
+
+maybe you can use `gtags -v`, `global -f xxx` to search func location
+
 
 ## FYI
 * [GoogleTest \+ CMakeでC\+\+の実践的なユニットテスト環境を構築する：その２（カバレッジ表示） \- Qiita]( https://qiita.com/imasaaki/items/0021d1ef14660184f396 )
