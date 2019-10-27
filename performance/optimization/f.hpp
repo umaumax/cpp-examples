@@ -8,4 +8,3 @@ int g(int x, int n);
 #endif
 
 #endif  // F_HPP_INCLUDED__
-

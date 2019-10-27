@@ -6,7 +6,8 @@ class MonoStopWatch { using time_type = std::chrono::system_clock::time_point; p
 class StopWatch { public: StopWatch() {} void SetPrefixMessage(std::string message) { message_ = message; } void Clear(std::string key) { getMonoStopWatch(key, false).Clear(); }; void Start(std::string key) { getMonoStopWatch(key, false).Start(); }; void Stop(std::string key) { getMonoStopWatch(key).Stop(); }; void Print(std::string key) { getMonoStopWatch(key).Print(message_ + ":" + key); }; void PrintAll() { for (auto& x : mono_stop_watch_map_) { Print(x.first); } } private: MonoStopWatch& getMonoStopWatch(std::string key, bool assert_flag=true) { if(assert_flag) { auto it=mono_stop_watch_map_.find(key); assert((it!=mono_stop_watch_map_.end()) && "no exist key found"); } return mono_stop_watch_map_[key]; } std::string message_ = "#"; std::map<std::string, MonoStopWatch> mono_stop_watch_map_; };
 // clang-format on
 static StopWatch stopwatch;
-const std::string stopwatch_total_key = std::string("[total]:") + std::string(__func__);
+const std::string stopwatch_total_key =
+    std::string("[total]:") + std::string(__func__);
 LocalHookCallback local_hook_callback;
 local_hook_callback.SetCallback([&]() {
   std::printf("ret=%d\n", ret);

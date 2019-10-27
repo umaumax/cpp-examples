@@ -12,7 +12,9 @@ struct Hoge {
     std::cout << "func1:" << a << std::endl;
     return 1;
   }
-  void func2(int a, int b) { std::cout << "func2:" << a << "," << b << std::endl; }
+  void func2(int a, int b) {
+    std::cout << "func2:" << a << "," << b << std::endl;
+  }
 
  protected:
   T member_;

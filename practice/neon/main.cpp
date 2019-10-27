@@ -10,7 +10,8 @@
 
 // [NEONコプロセッサ｜Cortex\-A編]( https://www.aps-web.jp/academy/ca/14/ )
 
-float calc(float* __restrict fdata1, float* __restrict fdata2, std::size_t size) {
+float calc(float* __restrict fdata1, float* __restrict fdata2,
+           std::size_t size) {
   float res = 0.0;
   unsigned long i;
 
@@ -20,7 +21,8 @@ float calc(float* __restrict fdata1, float* __restrict fdata2, std::size_t size)
   return res;
 }
 
-float neon_calc(float* __restrict fdata1, float* __restrict fdata2, std::size_t size) {
+float neon_calc(float* __restrict fdata1, float* __restrict fdata2,
+                std::size_t size) {
   float res = 0.0;
   unsigned long i;
 
@@ -31,7 +33,8 @@ float neon_calc(float* __restrict fdata1, float* __restrict fdata2, std::size_t 
     f_data1 = vld1q_f32(fdata1);
     f_data2 = vld1q_f32(fdata2);
     f_res   = vaddq_f32(f_data1, f_data2);
-    res += vgetq_lane_f32(f_res, 0) + vgetq_lane_f32(f_res, 1) + vgetq_lane_f32(f_res, 2) + vgetq_lane_f32(f_res, 3);
+    res += vgetq_lane_f32(f_res, 0) + vgetq_lane_f32(f_res, 1) +
+           vgetq_lane_f32(f_res, 2) + vgetq_lane_f32(f_res, 3);
     fdata1 += 4;
     fdata2 += 4;
   }

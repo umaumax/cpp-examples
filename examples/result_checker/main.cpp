@@ -10,7 +10,13 @@
 
 class ResultChecker {
  public:
-  ResultChecker(std::string dirname, std::string title) : dirname_(dirname), title_(title), filepath_(dirname + "/" + title + ".log"), check_flag_(false), th_(10e-8), ok_flag_(false) {
+  ResultChecker(std::string dirname, std::string title)
+      : dirname_(dirname),
+        title_(title),
+        filepath_(dirname + "/" + title + ".log"),
+        check_flag_(false),
+        th_(10e-8),
+        ok_flag_(false) {
     const int dir_err = system((std::string("mkdir -p ") + dirname_).c_str());
     if (-1 == dir_err) {
       std::cerr << "Failed to mkdir: " << dirname_ << std::endl;
@@ -76,7 +82,9 @@ class ResultChecker {
       if (message != "") {
         result_flag = false;
       }
-      std::cerr << "# RESULT_CHECK[" << title_ << "][" << key << "]: " << (result_flag ? "PASS" : "ERROR") << " " << message << std::endl;
+      std::cerr << "# RESULT_CHECK[" << title_ << "][" << key
+                << "]: " << (result_flag ? "PASS" : "ERROR") << " " << message
+                << std::endl;
     } else {
       fs_ << key << " ";
       fs_ << size << " ";
@@ -98,7 +106,8 @@ class ResultChecker {
 
  private:
   template <class T>
-  std::string ErrorMessageNotEqual(const std::string& key, const T& got, const T& want) {
+  std::string ErrorMessageNotEqual(const std::string& key, const T& got,
+                                   const T& want) {
     std::stringstream ss;
     ss << "[" << key << "(got != want): (" << got << " != " << want << ")]";
     return ss.str();

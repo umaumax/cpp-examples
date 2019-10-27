@@ -62,4 +62,3 @@ void example_func() {
 }
 
 #endif  // FUNC_IO_HPP_INCLUDED__
-

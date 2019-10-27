@@ -103,28 +103,33 @@ int main(int argc, char* argv[]) {
     }
   };
 
-  std::map<std::string, std::function<calc_type(calc_type*, calc_type*, int)>> funcmap = {
-      {"0 orig", orig_sum},  //
-      {"1 new1", new_sum1},  //
-      {"2 new2", new_sum2},  //
-      {"3 new3", new_sum3},  //
-      {"4 new4", new_sum4},  //
-      {"5 new5", new_sum5},  //
-      {"6 new6", new_sum6},  //
-      {"7 new7", new_sum7},  //
-      {"8 new8", new_sum8},  //
-  };
+  std::map<std::string, std::function<calc_type(calc_type*, calc_type*, int)>>
+      funcmap = {
+          {"0 orig", orig_sum},  //
+          {"1 new1", new_sum1},  //
+          {"2 new2", new_sum2},  //
+          {"3 new3", new_sum3},  //
+          {"4 new4", new_sum4},  //
+          {"5 new5", new_sum5},  //
+          {"6 new6", new_sum6},  //
+          {"7 new7", new_sum7},  //
+          {"8 new8", new_sum8},  //
+      };
   for (auto& x : funcmap) {
     auto& key = x.first;
     auto& f   = x.second;
     init_data();
-    std::chrono::system_clock::time_point start = std::chrono::system_clock::now();
-    calc_type ret                               = 0.0;
+    std::chrono::system_clock::time_point start =
+        std::chrono::system_clock::now();
+    calc_type ret = 0.0;
     for (int i = 0; i < loop_num; i++) {
       ret += f(a, b, array_num);
     }
-    double elapsed = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now() - start).count();
-    std::printf("%s result[%s] %lf usec\n", key.c_str(), std::to_string(ret).c_str(), elapsed);
+    double elapsed = std::chrono::duration_cast<std::chrono::microseconds>(
+                         std::chrono::system_clock::now() - start)
+                         .count();
+    std::printf("%s result[%s] %lf usec\n", key.c_str(),
+                std::to_string(ret).c_str(), elapsed);
   }
   return 0;
 }

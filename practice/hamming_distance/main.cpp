@@ -10,8 +10,12 @@ unsigned int hammingDistance1(unsigned int x, unsigned int y) {
   }
   return r;
 }
-unsigned int hammingDistance2(unsigned int x, unsigned int y) { return std::bitset<32>(x ^ y).count(); }
-unsigned int hammingDistance3(unsigned int x, unsigned int y) { return __builtin_popcount(x ^ y); }
+unsigned int hammingDistance2(unsigned int x, unsigned int y) {
+  return std::bitset<32>(x ^ y).count();
+}
+unsigned int hammingDistance3(unsigned int x, unsigned int y) {
+  return __builtin_popcount(x ^ y);
+}
 unsigned int hammingDistance4(unsigned int x, unsigned int y) {
   unsigned int i = x ^ y;
   i              = i - ((i >> 1) & 0x55555555);
@@ -24,28 +28,32 @@ unsigned int hammingDistance4(unsigned int x, unsigned int y) {
 
 static void BM_LongTest1(benchmark::State& state) {
   double tracker = 0.0;
-  while (state.KeepRunning()) hammingDistance1(state.range(), 2 * state.range());
+  while (state.KeepRunning())
+    hammingDistance1(state.range(), 2 * state.range());
   //     for (int i = 0; i < state.range(); ++i) tracker += i;
 }
 BENCHMARK(BM_LongTest1)->Range(1 << 16, 1 << 17);
 
 static void BM_LongTest2(benchmark::State& state) {
   double tracker = 0.0;
-  while (state.KeepRunning()) hammingDistance2(state.range(), 2 * state.range());
+  while (state.KeepRunning())
+    hammingDistance2(state.range(), 2 * state.range());
   //     for (int i = 0; i < state.range(); ++i) tracker += i;
 }
 BENCHMARK(BM_LongTest2)->Range(1 << 16, 1 << 17);
 
 static void BM_LongTest3(benchmark::State& state) {
   double tracker = 0.0;
-  while (state.KeepRunning()) hammingDistance3(state.range(), 2 * state.range());
+  while (state.KeepRunning())
+    hammingDistance3(state.range(), 2 * state.range());
   //     for (int i = 0; i < state.range(); ++i) tracker += i;
 }
 BENCHMARK(BM_LongTest3)->Range(1 << 16, 1 << 17);
 
 static void BM_LongTest4(benchmark::State& state) {
   double tracker = 0.0;
-  while (state.KeepRunning()) hammingDistance4(state.range(), 2 * state.range());
+  while (state.KeepRunning())
+    hammingDistance4(state.range(), 2 * state.range());
   //     for (int i = 0; i < state.range(); ++i) tracker += i;
 }
 BENCHMARK(BM_LongTest4)->Range(1 << 16, 1 << 17);

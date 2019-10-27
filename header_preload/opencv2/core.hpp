@@ -4,4 +4,3 @@
 #define CV_VERSION "preload CV_VERSION!!"
 
 #endif  // CORE_HPP_INCLUDED__
-

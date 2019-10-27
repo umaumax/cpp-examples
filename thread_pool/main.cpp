@@ -9,8 +9,9 @@ int main(int argc, char* argv[]) {
 
   {
     //   auto&& poolp = std::shared_ptr<ThreadPool>(new ThreadPool(n_thread));
-    auto&& poolp = std::shared_ptr<ThreadPool>(new ThreadPool(n_thread, [](int i) { std::printf("[%d] init\n", i); }));
-    auto&& pool  = *poolp;
+    auto&& poolp = std::shared_ptr<ThreadPool>(
+        new ThreadPool(n_thread, [](int i) { std::printf("[%d] init\n", i); }));
+    auto&& pool = *poolp;
 
     std::vector<std::shared_future<std::string>> rets(n_loop);
     std::vector<std::shared_future<std::string>> rets2(n_loop);
@@ -30,8 +31,9 @@ int main(int argc, char* argv[]) {
   }
 
   {
-    auto&& poolp = std::shared_ptr<ThreadPool>(new ThreadPool(n_thread, [](int i) { std::printf("[%d] init\n", i); }));
-    auto&& pool  = *poolp;
+    auto&& poolp = std::shared_ptr<ThreadPool>(
+        new ThreadPool(n_thread, [](int i) { std::printf("[%d] init\n", i); }));
+    auto&& pool = *poolp;
     std::printf("sleep func start\n");
     std::printf("sleep func for loop start\n");
     for (int i = 0; i < n_loop; i++) {

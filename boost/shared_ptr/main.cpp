@@ -14,14 +14,17 @@ class Test {
 template <class T>
 void do_release(class boost::shared_ptr<T> const&, T*) {}
 template <class T>
-class std::shared_ptr<T> to_std_shared_ptr(class boost::shared_ptr<T> const& p) {
+class std::shared_ptr<T> to_std_shared_ptr(
+    class boost::shared_ptr<T> const& p) {
   return std::shared_ptr<T>(p.get(), boost::bind(&do_release<T>, p, _1));
 }
 
 // NOTE: remvoe const to assign std::shared_ptr<void>
 template <class T>
-class std::shared_ptr<T> to_std_shared_ptr(class boost::shared_ptr<const T> const& p) {
-  return std::shared_ptr<T>(const_cast<T*>(p.get()), boost::bind(&do_release<const T>, p, _1));
+class std::shared_ptr<T> to_std_shared_ptr(
+    class boost::shared_ptr<const T> const& p) {
+  return std::shared_ptr<T>(const_cast<T*>(p.get()),
+                            boost::bind(&do_release<const T>, p, _1));
 }
 
 int main() {
@@ -58,7 +61,7 @@ int main() {
     {
       boost::shared_ptr<Test> boost_shared_ptr{new Test()};
       boost::shared_ptr<Test> boost_shared_ptr2 = boost_shared_ptr;
-      std_shared_ptr                            = to_std_shared_ptr(boost_shared_ptr);
+      std_shared_ptr = to_std_shared_ptr(boost_shared_ptr);
     }
     std::cout << "# 2-2 end" << std::endl;
   }
@@ -98,7 +101,8 @@ int main() {
     std::shared_ptr<void> std_shared_ptr;
     {
       boost::shared_ptr<Test> boost_shared_ptr{new Test()};
-      std_shared_ptr = std::make_shared<decltype(boost_shared_ptr)>(boost_shared_ptr);
+      std_shared_ptr =
+          std::make_shared<decltype(boost_shared_ptr)>(boost_shared_ptr);
     }
     std::cout << "# 3-3 end" << std::endl;
   }

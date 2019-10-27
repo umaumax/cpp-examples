@@ -190,4 +190,3 @@ class StopWatch {
 };
 
 #endif  // STOPWATCH_HPP_INCLUDED__
-

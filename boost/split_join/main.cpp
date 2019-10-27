@@ -16,7 +16,8 @@ int main(int argc, char* argv[]) {
     boost::trim_if(str, boost::is_any_of(delim));
     // NOTE: you can use boost::is_space() as delim
     // NOTE: boost::algorithm::token_compress_on: 連続したdelimを1つのdelimとして扱う
-    boost::algorithm::split(v, str, boost::is_any_of(delim), boost::algorithm::token_compress_on);
+    boost::algorithm::split(v, str, boost::is_any_of(delim),
+                            boost::algorithm::token_compress_on);
   }
   {
     std::vector<std::string> elems;
