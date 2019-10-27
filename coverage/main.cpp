@@ -8,7 +8,7 @@ std::string switch_test(int x) {
       str = "zero";
       break;
     case 1:
-      str = "one";
+      str = "one"; // PASS_COV
       break;
     case 2:
       str = "two";
