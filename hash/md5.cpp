@@ -2,7 +2,9 @@
 #include <string>
 
 #include <boost/version.hpp>
-#if BOOST_VERSION < 106800
+#if BOOST_VERSION < 106600
+#error 'boost md5 is impled from 1.66.0    see https://boostjp.github.io/document/version/1_66_0.html'
+#elif BOOST_VERSION < 106800
 #include <boost/uuid/md5.hpp>
 #else
 #include <boost/uuid/detail/md5.hpp>

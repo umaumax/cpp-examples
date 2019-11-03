@@ -13,6 +13,7 @@
 * `std:hash`や`boost::hash`の結果は`std:size_t`であり，32bitと64bitのマシン環境で結果が異なってしまうことに注意
   * [c\+\+ \- Get 32\-bit hash value from boost::hash \- Stack Overflow]( https://stackoverflow.com/questions/17426493/get-32-bit-hash-value-from-boosthash )
   * そのため，`boost`の`md5`や`sha1`がおすすめ(これらのは`-I`や`-l`を追加せずとも使用可能)
+  * このとき，ubuntuの標準のboostは`Version: 1.58.0.1ubuntu1`であり，`md5`実装がないので，`sha1`がおすすめ
 
 ## hash list
 [hashアルゴリズムとハッシュ値の長さ一覧 \- Qiita]( https://qiita.com/KEINOS/items/c92268386d265042ea16 )
