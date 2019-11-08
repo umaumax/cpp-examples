@@ -82,7 +82,7 @@ $ gcov main
 # or gcov main.cpp
 # or gcov main.gcno
 # gcov main.cpp
-$ ls.gcov
+$ ls *.gcov
 __locale.gcov
 __string.gcov
 ios.gcov
