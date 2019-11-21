@@ -3,10 +3,12 @@
 ## クラスメンバにconstexpr static変数を利用する
 (コンパイル時に決定される定数として利用したい)
 
-TL;DR
+### TL;DR
 * hppにマクロを指定してそもそもクラスメンバとしない
 * hppに`inline`で変数を定義する(warning: inline variables are a C++17 extension [-Wc++17-extensions])
 * hppに`static constexpr`で変数を定義し，cppにて宣言する
+  * cppに宣言がない場合に`-Wall`でも警告がでない
+  * `Undefined symbols`になる場合がある(`g++`/`clang++`,`-O0`~`-O3`などや環境によって変化する(同じ宣言の変数では最適化の度合いによって出現したりしなかったりするので，非常にやっかい))
 
 FYI
 * [c\+\+ \- Undefined reference to static constexpr char\[\] \- Stack Overflow]( https://stackoverflow.com/questions/8016780/undefined-reference-to-static-constexpr-char )
