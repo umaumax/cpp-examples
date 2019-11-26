@@ -1,5 +1,7 @@
 # odr-use
 
+This article result is get by `-std=c++11` or `-std=c++14`. (`-std=c++17` no problem)
+
 ```cpp
 #include <vector>
 
