@@ -140,6 +140,20 @@ mac
 | g++-9   | g++-9 (Homebrew GCC 9.2.0) 9.2.0             | -O2 | ❌     |
 | g++-9   | g++-9 (Homebrew GCC 9.2.0) 9.2.0             | -O3 | ❌     |
 
+`❌`のときの組み合わせで`-c`をつけてオブジェクトファイルを生成し，`nm`で確認すると`U A::x`となっていることがわかる
+
+```
+$ clang++ -emit-llvm -std=c++11 main.cpp -c -S -O0 -o main.O0.ll
+$ clang++ -emit-llvm -std=c++11 main.cpp -c -S -O1 -o main.O1.ll
+$ clang++ -emit-llvm -std=c++11 main.cpp -c -S -O2 -o main.O2.ll
+$ clang++ -emit-llvm -std=c++11 main.cpp -c -S -O3 -o main.O3.ll
+$ grep -r a . | grep "_ZN1A1xE"
+./main.O0.ll:@_ZN1A1xE = available_externally constant i32 123, align 4
+./main.O0.ll:  invoke void @_ZNSt3__16vectorIiNS_9allocatorIiEEE12emplace_backIJRKiEEEvDpOT_(%"class.std::__1::vector"* %6, i32* dereferenceable(4) @_ZN1A1xE)
+./main.O1.ll:@_ZN1A1xE = available_externally constant i32 123, align 4
+./main.O1.ll:  invoke void @_ZNSt3__16vectorIiNS_9allocatorIiEEE12emplace_backIJRKiEEEvDpOT_(%"class.std::__1::vector"* nonnull %3, i32* nonnull dereferenceable(4) @_ZN1A1xE)
+```
+
 ## try force use odr example
 
 all patterns are NG without uncomment declaration
