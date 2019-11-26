@@ -140,6 +140,34 @@ mac
 | g++-9   | g++-9 (Homebrew GCC 9.2.0) 9.2.0             | -O2 | ❌     |
 | g++-9   | g++-9 (Homebrew GCC 9.2.0) 9.2.0             | -O3 | ❌     |
 
+## try force use odr example
+
+all patterns are NG without uncomment declaration
+
+```
+class A {
+ public:
+  static constexpr int x = 123;
+};
+
+// NOTE: S/s The symbol is in an uninitialized or zero-initialized data section for small objects.
+// constexpr int A::x;  // -> S A::x by nm command
+
+extern "C" {
+int f(const int& x) __attribute__((weak));
+}
+
+int main(int argc, char* argv[]) {
+  f(A::x);
+  return 0;
+}
+```
+
+e.g.
+```
+g++ -O3 -std=c++11 -Wl,-U,_f force_use_address_main.cpp
+```
+
 ## FYI
 * [c\+\+ \- Understanding static constexpr member variables \- Stack Overflow]( https://stackoverflow.com/questions/34053606/understanding-static-constexpr-member-variables )
 * [c\+\+ \- Undefined reference to static constexpr char\[\] \- Stack Overflow]( https://stackoverflow.com/questions/8016780/undefined-reference-to-static-constexpr-char )
