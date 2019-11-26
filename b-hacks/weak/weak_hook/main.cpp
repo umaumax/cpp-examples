@@ -4,7 +4,7 @@
 #include "add_hook.hpp"
 int add(int a, int b) { return a + b; }
 class Foo {
- public:
+ protected:
   // NOTE: No need to use __attribute__((weak))
   //   int add(int a, int b) { return a + b; }
 

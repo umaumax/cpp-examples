@@ -16,3 +16,5 @@ no sqrt function!
 ```
 
 * you can also use clang++
+* true g++ only on mac
+  * macでは`nm`の結果は`w`や`W`ではなく`U`になっているが，`nm -m`としてdarwinのformatでみると，`(undefined) weak external`になっている

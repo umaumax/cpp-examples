@@ -1,6 +1,7 @@
 # weak func hook
 
 ## how to compile and run
+mac and ubuntu ok
 ```
 $ g++ -std=c++11 -O3 -g main.cpp
 $ ./a.out
