@@ -10,6 +10,7 @@ class A {
 
 extern "C" {
 int f(const int& x) __attribute__((weak));
+int f(const int& x) { return x; }
 }
 
 int main(int argc, char* argv[]) {

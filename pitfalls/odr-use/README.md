@@ -155,6 +155,7 @@ class A {
 
 extern "C" {
 int f(const int& x) __attribute__((weak));
+int f(const int& x) { return x; }
 }
 
 int main(int argc, char* argv[]) {
@@ -165,7 +166,8 @@ int main(int argc, char* argv[]) {
 
 e.g.
 ```
-g++ -O3 -std=c++11 -Wl,-U,_f force_use_address_main.cpp
+# g++ -O3 -std=c++11 -Wl,-U,_f force_use_address_main.cpp
+g++ -O3 -std=c++11 force_use_address_main.cpp
 ```
 
 ## FYI
