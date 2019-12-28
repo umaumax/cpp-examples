@@ -7,7 +7,11 @@ function build() {
   $CXX "$@" main.cpp
 }
 
-compilers=(clang++ g++ g++-7 g++-9)
+if [[ $(uname) == "Darwin" ]]; then
+  compilers=(clang++ g++ g++-7 g++-9)
+else
+  compilers=(g++ clang++ clang++-3.8 clang++-5.0)
+fi
 for compiler in "${compilers[@]}"; do
   for ((i = 0; i <= 3; i++)); do
     CXX="$compiler" build "-std=c++11" "-O${i}"

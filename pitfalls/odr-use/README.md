@@ -20,6 +20,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
+## mac
 ```
 $ ./build.sh
 clang version 9.0.0 (tags/RELEASE_900/final)
@@ -121,26 +122,105 @@ collect2: error: ld returned 1 exit status
 CXX: g++-9, opt: -std=c++11 -O3: NG
 ```
 
-mac
+## ubuntu
+```
+$ build.sh
+g++ (Ubuntu 5.4.0-6ubuntu1~16.04.12) 5.4.0 20160609
+xxx/ccxjg6wO.o: In function `main':
+main.cpp:(.text+0x30): undefined reference to `A::x'
+collect2: error: ld returned 1 exit status
+CXX: g++, opt: -std=c++11 -O0: NG
+g++ (Ubuntu 5.4.0-6ubuntu1~16.04.12) 5.4.0 20160609
+xxx/ccNx2ilT.o: In function `main':
+main.cpp:(.text+0x30): undefined reference to `A::x'
+collect2: error: ld returned 1 exit status
+CXX: g++, opt: -std=c++11 -O1: NG
+g++ (Ubuntu 5.4.0-6ubuntu1~16.04.12) 5.4.0 20160609
+CXX: g++, opt: -std=c++11 -O2: OK
+g++ (Ubuntu 5.4.0-6ubuntu1~16.04.12) 5.4.0 20160609
+CXX: g++, opt: -std=c++11 -O3: OK
+clang version 6.0.0-1ubuntu2~16.04.1 (tags/RELEASE_600/final)
+xxx/main-3eecb1.o: In function `main':
+main.cpp:(.text+0x27): undefined reference to `A::x'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+CXX: clang++, opt: -std=c++11 -O0: NG
+clang version 6.0.0-1ubuntu2~16.04.1 (tags/RELEASE_600/final)
+xxx/main-39cdd0.o: In function `main':
+main.cpp:(.text+0x13): undefined reference to `A::x'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+CXX: clang++, opt: -std=c++11 -O1: NG
+clang version 6.0.0-1ubuntu2~16.04.1 (tags/RELEASE_600/final)
+CXX: clang++, opt: -std=c++11 -O2: OK
+clang version 6.0.0-1ubuntu2~16.04.1 (tags/RELEASE_600/final)
+CXX: clang++, opt: -std=c++11 -O3: OK
+clang version 3.8.0-2ubuntu4 (tags/RELEASE_380/final)
+xxx/main-afae98.o: In function `main':
+main.cpp:(.text+0x27): undefined reference to `A::x'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+CXX: clang++-3.8, opt: -std=c++11 -O0: NG
+clang version 3.8.0-2ubuntu4 (tags/RELEASE_380/final)
+xxx/main-533b72.o: In function `main':
+main.cpp:(.text+0x13): undefined reference to `A::x'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+CXX: clang++-3.8, opt: -std=c++11 -O1: NG
+clang version 3.8.0-2ubuntu4 (tags/RELEASE_380/final)
+xxx/main-c43415.o: In function `main':
+main.cpp:(.text+0x1a): undefined reference to `A::x'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+CXX: clang++-3.8, opt: -std=c++11 -O2: NG
+clang version 3.8.0-2ubuntu4 (tags/RELEASE_380/final)
+CXX: clang++-3.8, opt: -std=c++11 -O3: OK
+clang version 5.0.0-3~16.04.1 (tags/RELEASE_500/final)
+xxx/main-5bd737.o: In function `main':
+main.cpp:(.text+0x27): undefined reference to `A::x'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+CXX: clang++-5.0, opt: -std=c++11 -O0: NG
+clang version 5.0.0-3~16.04.1 (tags/RELEASE_500/final)
+xxx/main-4aee4e.o: In function `main':
+main.cpp:(.text+0x13): undefined reference to `A::x'
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+CXX: clang++-5.0, opt: -std=c++11 -O1: NG
+clang version 5.0.0-3~16.04.1 (tags/RELEASE_500/final)
+CXX: clang++-5.0, opt: -std=c++11 -O2: OK
+clang version 5.0.0-3~16.04.1 (tags/RELEASE_500/final)
+CXX: clang++-5.0, opt: -std=c++11 -O3: OK
+```
 
-| CXX     | version                                      | opt | result |
-|---------|----------------------------------------------|-----|--------|
-| clang++ | clang version 9.0.0 (tags/RELEASE_900/final) | -O0 | ❌     |
-| clang++ | clang version 9.0.0 (tags/RELEASE_900/final) | -O1 | ❌     |
-| clang++ | clang version 9.0.0 (tags/RELEASE_900/final) | -O2 | ✔     |
-| clang++ | clang version 9.0.0 (tags/RELEASE_900/final) | -O3 | ✔     |
-| g++     | Apple LLVM version 9.1.0 (clang-902.0.39.2)  | -O0 | ❌     |
-| g++     | Apple LLVM version 9.1.0 (clang-902.0.39.2)  | -O1 | ❌     |
-| g++     | Apple LLVM version 9.1.0 (clang-902.0.39.2)  | -O2 | ❌     |
-| g++     | Apple LLVM version 9.1.0 (clang-902.0.39.2)  | -O3 | ❌     |
-| g++-7   | g++-7 (Homebrew GCC 7.4.0_2) 7.4.0           | -O0 | ❌     |
-| g++-7   | g++-7 (Homebrew GCC 7.4.0_2) 7.4.0           | -O1 | ❌     |
-| g++-7   | g++-7 (Homebrew GCC 7.4.0_2) 7.4.0           | -O2 | ❌     |
-| g++-7   | g++-7 (Homebrew GCC 7.4.0_2) 7.4.0           | -O3 | ✔     |
-| g++-9   | g++-9 (Homebrew GCC 9.2.0) 9.2.0             | -O0 | ❌     |
-| g++-9   | g++-9 (Homebrew GCC 9.2.0) 9.2.0             | -O1 | ❌     |
-| g++-9   | g++-9 (Homebrew GCC 9.2.0) 9.2.0             | -O2 | ❌     |
-| g++-9   | g++-9 (Homebrew GCC 9.2.0) 9.2.0             | -O3 | ❌     |
+| CXX         | version                                                       | opt  | result |
+|-------------|---------------------------------------------------------------|------|--------|
+| clang++     | clang version 9.0.0 (tags/RELEASE_900/final)                  | -O0  | ❌     |
+| clang++     | clang version 9.0.0 (tags/RELEASE_900/final)                  | -O1  | ❌     |
+| clang++     | clang version 9.0.0 (tags/RELEASE_900/final)                  | -O2  | ✔      |
+| clang++     | clang version 9.0.0 (tags/RELEASE_900/final)                  | -O3  | ✔      |
+| g++         | Apple LLVM version 9.1.0 (clang-902.0.39.2)                   | -O0  | ❌     |
+| g++         | Apple LLVM version 9.1.0 (clang-902.0.39.2)                   | -O1  | ❌     |
+| g++         | Apple LLVM version 9.1.0 (clang-902.0.39.2)                   | -O2  | ❌     |
+| g++         | Apple LLVM version 9.1.0 (clang-902.0.39.2)                   | -O3  | ❌     |
+| g++-7       | g++-7 (Homebrew GCC 7.4.0_2) 7.4.0                            | -O0  | ❌     |
+| g++-7       | g++-7 (Homebrew GCC 7.4.0_2) 7.4.0                            | -O1  | ❌     |
+| g++-7       | g++-7 (Homebrew GCC 7.4.0_2) 7.4.0                            | -O2  | ❌     |
+| g++-7       | g++-7 (Homebrew GCC 7.4.0_2) 7.4.0                            | -O3  | ✔      |
+| g++-9       | g++-9 (Homebrew GCC 9.2.0) 9.2.0                              | -O0  | ❌     |
+| g++-9       | g++-9 (Homebrew GCC 9.2.0) 9.2.0                              | -O1  | ❌     |
+| g++-9       | g++-9 (Homebrew GCC 9.2.0) 9.2.0                              | -O2  | ❌     |
+| g++-9       | g++-9 (Homebrew GCC 9.2.0) 9.2.0                              | -O3  | ❌     |
+| ----        | ----                                                          | ---- | ----   |
+| g++         | g++ (Ubuntu 5.4.0-6ubuntu1~16.04.12) 5.4.0 20160609           | -O0  | ❌     |
+| g++         | g++ (Ubuntu 5.4.0-6ubuntu1~16.04.12) 5.4.0 20160609           | -O1  | ❌     |
+| g++         | g++ (Ubuntu 5.4.0-6ubuntu1~16.04.12) 5.4.0 20160609           | -O2  | ✔      |
+| g++         | g++ (Ubuntu 5.4.0-6ubuntu1~16.04.12) 5.4.0 20160609           | -O3  | ✔      |
+| clang++     | clang version 6.0.0-1ubuntu2~16.04.1 (tags/RELEASE_600/final) | -O0  | ❌     |
+| clang++     | clang version 6.0.0-1ubuntu2~16.04.1 (tags/RELEASE_600/final) | -O1  | ❌     |
+| clang++     | clang version 6.0.0-1ubuntu2~16.04.1 (tags/RELEASE_600/final) | -O2  | ✔      |
+| clang++     | clang version 6.0.0-1ubuntu2~16.04.1 (tags/RELEASE_600/final) | -O3  | ✔      |
+| clang++-3.8 | clang version 3.8.0-2ubuntu4 (tags/RELEASE_380/final)         | -O0  | ❌     |
+| clang++-3.8 | clang version 3.8.0-2ubuntu4 (tags/RELEASE_380/final)         | -O1  | ❌     |
+| clang++-3.8 | clang version 3.8.0-2ubuntu4 (tags/RELEASE_380/final)         | -O2  | ❌     |
+| clang++-3.8 | clang version 3.8.0-2ubuntu4 (tags/RELEASE_380/final)         | -O3  | ✔      |
+| clang++-5.0 | clang version 5.0.0-3~16.04.1 (tags/RELEASE_500/final)        | -O0  | ❌     |
+| clang++-5.0 | clang version 5.0.0-3~16.04.1 (tags/RELEASE_500/final)        | -O1  | ❌     |
+| clang++-5.0 | clang version 5.0.0-3~16.04.1 (tags/RELEASE_500/final)        | -O2  | ✔      |
+| clang++-5.0 | clang version 5.0.0-3~16.04.1 (tags/RELEASE_500/final)        | -O3  | ✔      |
 
 `❌`のときの組み合わせで`-c`をつけてオブジェクトファイルを生成し，`nm`で確認すると`U A::x`となっていることがわかる
 
