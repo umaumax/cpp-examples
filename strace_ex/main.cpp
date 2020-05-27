@@ -153,6 +153,7 @@ void peek_and_output(pid_t pid, int fd, uintptr_t addr, size_t size) {
     return;
   }
   char* bytes = reinterpret_cast<char*>(malloc(size + sizeof(long)));
+  // NOTE: you can read /proc/xxx/mem for more efficient
   int i;
   for (i = 0; i < size; i += sizeof(long)) {
     long data = ptrace(PTRACE_PEEKDATA, pid, addr + i, nullptr);
