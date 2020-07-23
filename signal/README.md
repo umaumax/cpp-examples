@@ -44,6 +44,25 @@ if (signal(SIGINT, xxx_handler) == SIG_ERR) {
 ## how to delete handler?
 WIP
 
+## シグナルはスレッドごとに受け取るが，ハンドラーは共通であることに注意
+ハンドラーがメインスレッドで動くことを前提とするコードにしてしまうと，子スレッドに対してSIGINT/SIGTERMなどが送信されると予期せぬ挙動となる
+これは，例えば，シャットダウン時にはすべてのプロセスにSIGTERMが送信されるとのことで，そのときに，子スレッドに対しても送信されるとしたら普通に発生し得ることである
+
+`thread.cpp`にて，`SIGINT`のハンドラー内で子スレッドを`join()`するコードを作成した
+
+```
+g++ -std=c++11 thread.cpp -lpthread -o thread
+```
+
+* メインスレッドに対してSIGINTを送信するには，コマンドを実行して`C-c`とすればよく，これは期待通りに正常に動作する
+* 子スレッドに対して，`kill -SIGINT $TID`とすると下記のようにdeadlockとなる
+
+```
+terminate called after throwing an instance of 'std::system_error'
+  what():  Resource deadlock avoided
+[1]    7065 abort (core dumped)  ./thread
+```
+
 ## tips
 * sigactionでsignalは上書きされる
 
