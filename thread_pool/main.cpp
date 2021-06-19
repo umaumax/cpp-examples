@@ -4,6 +4,10 @@
 #include "thread_pool.hpp"
 
 int main(int argc, char* argv[]) {
+  int sleep_duration = 1000;
+  if (argc >= 2) {
+    sleep_duration = static_cast<int>(std::stof(std::string(argv[1])) * 1000.0);
+  }
   constexpr int n_thread = 4;
   constexpr int n_loop   = 10;
 
@@ -39,7 +43,7 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < n_loop; i++) {
       pool.PushTask([&, i]() {
         std::printf("[%d] run sleep start\n", i);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleep_duration));
         std::printf("[%d] run sleep end\n", i);
         return std::string("[" + std::to_string(i) + "] ret");
       });
