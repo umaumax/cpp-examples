@@ -2,7 +2,7 @@
 
 ## how to compile
 ```
-$ g++ -std=c++11 -lpthread main.cpp
+$ g++ -std=c++11 main.cpp -lpthread
 ```
 
 ## FYI
