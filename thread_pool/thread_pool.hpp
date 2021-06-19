@@ -20,7 +20,7 @@ class ThreadPool {
 
   // NOTE: use std::invoke_result not std::result_of(C++17~)
   template <class F, class... Args>
-  auto PushTask(F &&f, Args &&... args)
+  auto PushTask(F &&f, Args &&...args)
       -> std::shared_future<typename std::result_of<F(Args...)>::type>;
   void JoinTasks();
   void JoinPool();
@@ -85,7 +85,7 @@ inline void ThreadPool::JoinPool() {
 
 // add new work item to the pool
 template <class F, class... Args>
-auto ThreadPool::PushTask(F &&f, Args &&... args)
+auto ThreadPool::PushTask(F &&f, Args &&...args)
     -> std::shared_future<typename std::result_of<F(Args...)>::type> {
   using return_type = typename std::result_of<F(Args...)>::type;
 
