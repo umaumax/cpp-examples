@@ -8,6 +8,7 @@
 #include <boost/uuid/detail/sha1.hpp>
 #endif
 #include <boost/algorithm/hex.hpp>
+#include <boost/algorithm/string.hpp>
 
 std::string sha1(const std::string& str) {
   boost::uuids::detail::sha1 sha1;
@@ -19,6 +20,7 @@ std::string sha1(const std::string& str) {
   std::string result;
   boost::algorithm::hex(digest, digest + sha1_elem_num,
                         std::back_inserter(result));
+  boost::algorithm::to_lower(result);
   return result;
 }
 
