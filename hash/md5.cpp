@@ -10,6 +10,7 @@
 #include <boost/uuid/detail/md5.hpp>
 #endif
 #include <boost/algorithm/hex.hpp>
+#include <boost/algorithm/string.hpp>
 
 std::string md5(const std::string& str) {
   boost::uuids::detail::md5 md5;
@@ -21,6 +22,7 @@ std::string md5(const std::string& str) {
   boost::algorithm::hex(
       char_digest, char_digest + sizeof(boost::uuids::detail::md5::digest_type),
       std::back_inserter(result));
+  boost::algorithm::to_lower(result);
   return result;
 }
 
