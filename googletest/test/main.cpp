@@ -42,6 +42,11 @@ TEST_F(SampleTest, true_test) {
   EXPECT_EQ(*p, 123);
 }
 
+TEST(StioTest, throw_exception_test) {
+  int num = std::stoi("not a number");
+  *(volatile int*)(nullptr);
+}
+
 // NOTE: Paramerter Test
 class EvenParamTest : public ::testing::TestWithParam<int> {};
 INSTANTIATE_TEST_SUITE_P(small_number, EvenParamTest,
