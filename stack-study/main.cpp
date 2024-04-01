@@ -21,53 +21,40 @@ void get_stack_info() {
   pthread_attr_t attr;
   pthread_t self = pthread_self();
   pthread_getname_np(self, name, PROCES_NAME_LEN);
+// mac
+#ifdef __APPLE__
+  pthread_attr_init(&attr);  // pthread_attr_getstack() will return 0x0
+#else
   // ubuntu
-  // pthread_getattr_np(self, &attr);
-  // mac
-  pthread_attr_init(&attr);
-  // mac return 0x0 as stackaddr
+  pthread_getattr_np(self, &attr);
+#endif
   pthread_attr_getstack(&attr, &stackaddr, &stacksize);
   pthread_attr_getguardsize(&attr, &guardsize);
-  printf("name=%.4s range=[%p-%p] size=%zu guard size=%zu\n", name, stackaddr,
+  printf("name=%7s range=[%p-%p] size=%zu guard size=%zu\n", name, stackaddr,
          reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(stackaddr) +
                                  stacksize - 1),
          stacksize, guardsize);
 }
 void* threadFunction(void* arg) {
-  // way 0
   void* local_var1 = nullptr;
   void* local_var2 = nullptr;
 
-  // way 1
+  int x = *(int*)arg;
+
   pthread_t tid = pthread_self();
-  // void* stackAddr = pthread_getattr_np(pthread_self(), PTHREAD_ATTR_STACKADDR);
-  //
-  // std::cout << "         Thread ID: " << tid << std::endl;
-  printf("         Thread ID: %p(%lld)\n", (void*)tid, (uint64_t)tid);
-  // std::cout << "Stack Address: " << stackAddr << std::endl;
+  printf("[%d]      Thread ID: %p(%lu)\n", x, (void*)tid,
+         (long unsigned int)tid);
 
   std::cout << "       arg address: " << &arg << std::endl;
   // std::cout << "        arg value: " << arg << std::endl;
   std::cout << "local var1 address: " << &local_var1 << std::endl;
   std::cout << "local var2 address: " << &local_var2 << std::endl;
 
-  // way 2
-  pthread_attr_t tattr;
-  void* base;
-  int ret;
-
   get_stack_info();
-  /* getting a new address */
-  pthread_attr_init(&tattr);
-
-  size_t size;
-  ret = pthread_attr_getstacksize(&tattr, &size);
-  std::cout << "       stack address size: " << size << std::endl;
 
   std::cout << "-------------------------------" << std::endl;
-  int x = *(int*)arg;
   if (x > 0) {
-    x = -1;
+    x--;
     threadFunction(&x);
   }
   return nullptr;
@@ -75,15 +62,11 @@ void* threadFunction(void* arg) {
 
 int main(int argc, const char* argv[]) {
   std::cout << "-----main----------------------" << std::endl;
-  // way 0
   void* local_var1 = nullptr;
   void* local_var2 = nullptr;
-  // way 1
-  pthread_t tid = pthread_self();
-  // void* stackAddr = pthread_getattr_np(pthread_self(), PTHREAD_ATTR_STACKADDR);
-  //
-  std::cout << "         Thread ID: " << tid << std::endl;
-  // std::cout << "Stack Address: " << stackAddr << std::endl;
+  pthread_t tid    = pthread_self();
+
+  printf("         Thread ID: %p(%lu)\n", (void*)tid, (long unsigned int)tid);
 
   std::cout << "       arg address: " << &argc << std::endl;
   // std::cout << "        arg value: " << arg << std::endl;
@@ -92,7 +75,7 @@ int main(int argc, const char* argv[]) {
   std::cout << "-------------------------------" << std::endl;
 
   std::cout << "-----pthread-------------------" << std::endl;
-  int n = 4;
+  int n = 2;
   std::vector<pthread_t> threads(n);
   int x = 1;
   for (int i = 0; i < n; i++) {
